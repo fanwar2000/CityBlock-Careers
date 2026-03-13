@@ -1,0 +1,71 @@
+backend:
+  name: git-gateway
+  branch: main
+media_folder: "uploads"
+public_folder: "/uploads"
+logo_url: "/logo.png"
+collections:
+
+  - name: "properties"
+    label: "Properties"
+    label_singular: "Property"
+    folder: "_data/properties"
+    create: true
+    identifier_field: "slug"
+    slug: "{{slug}}"
+    extension: "json"
+    format: "json"
+    summary: "{{address}}"
+    preview_path: "property/?id={{filename}}"
+    fields:
+      - label: "Property URL Slug"
+        name: "slug"
+        widget: "string"
+        hint: "This becomes the URL: https://cityblockhomeguide.netlify.app/property/?id=YOUR-SLUG"
+      - { label: "Street Address", name: "address", widget: "string" }
+      - { label: "City, State ZIP", name: "city", widget: "string" }
+      - label: "Sections"
+        name: "sections"
+        widget: "list"
+        summary: "{{fields.id}}"
+        fields:
+          - { label: "Section ID", name: "id", widget: "string" }
+          - { label: "Location Description", name: "location", widget: "text" }
+      - label: "Tips"
+        name: "tips"
+        widget: "list"
+        required: false
+        summary: "{{fields.id}}"
+        fields:
+          - { label: "Section ID", name: "id", widget: "string" }
+          - { label: "Tip Text", name: "text", widget: "text" }
+
+  - name: "directory"
+    label: "Properties Directory"
+    files:
+      - name: "section_types"
+        label: "Section Types"
+        file: "_data/section-types.json"
+        fields:
+          - label: "Sections"
+            name: "sections"
+            widget: "list"
+            summary: "{{fields.title}}"
+            fields:
+              - { label: "ID", name: "id", widget: "string" }
+              - { label: "Emoji Icon", name: "icon", widget: "string" }
+              - { label: "Category", name: "category", widget: "string" }
+              - { label: "Title", name: "title", widget: "string" }
+
+      - name: "properties_list"
+        label: "Properties Directory"
+        file: "_data/properties-list.json"
+        fields:
+          - label: "Properties"
+            name: "properties"
+            widget: "list"
+            summary: "{{fields.address}}"
+            fields:
+              - { label: "URL Slug", name: "slug", widget: "string" }
+              - { label: "Street Address", name: "address", widget: "string" }
+              - { label: "City, State ZIP", name: "city", widget: "string" }
