@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Apply — Maintenance Worker | CityBlock</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --black:#0a0a0a;--card:#131518;--border:#1e2126;
+  --cyan:#00b4d8;--cyan-dim:#0096b4;--cyan-glow:rgba(0,180,216,0.1);--cyan-border:rgba(0,180,216,0.3);
+  --white:#fff;--muted:#8a9099;--error:#e05252;--success:#3ecf8e;--inp:#0f1114;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Figtree',sans-serif;background:var(--black);color:var(--white);min-height:100vh}
+nav{display:flex;align-items:center;justify-content:space-between;padding:1.1rem 2.5rem;border-bottom:1px solid var(--border);background:rgba(10,10,10,.95);position:sticky;top:0;z-index:50}
+.logo{font-weight:700;font-size:1.2rem;letter-spacing:.05em;text-transform:uppercase}
+.logo .cy{color:var(--white)}.logo .bl{color:var(--cyan)}
+.logo sup{color:var(--cyan);font-size:.5rem;vertical-align:super}
+.back{font-size:.8rem;color:var(--muted);text-decoration:none;transition:color .2s}
+.back:hover{color:var(--white)}
+.wrap{max-width:780px;margin:0 auto;padding:3rem 1.5rem 6rem}
+.hdr{margin-bottom:2.5rem;padding-bottom:2rem;border-bottom:1px solid var(--border)}
+.role-tag{font-size:.7rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--cyan);border:1px solid var(--cyan-border);background:var(--cyan-glow);padding:.25rem .65rem;border-radius:3px;display:inline-block;margin-bottom:.85rem}
+.hdr h1{font-size:1.9rem;font-weight:600;letter-spacing:-.02em;margin-bottom:.5rem}
+.hdr p{font-size:.875rem;color:var(--muted);line-height:1.65}
+.eoe{margin-top:1rem;padding:.9rem 1rem;background:var(--card);border:1px solid var(--border);border-radius:6px;font-size:.78rem;color:var(--muted);line-height:1.6}
+.prog{display:flex;gap:.5rem;margin-bottom:2.5rem}
+.ps{flex:1;height:3px;border-radius:2px;background:var(--border);transition:background .3s}
+.ps.done{background:var(--cyan)}
+.slbl{font-size:.7rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:1.75rem}
+.slbl span{color:var(--cyan)}
+.step{display:none}
+.step.active{display:block}
+.stitle{font-size:1.1rem;font-weight:600;margin-bottom:1.25rem;padding-bottom:.75rem;border-bottom:1px solid var(--border)}
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}
+.fg.full{grid-template-columns:1fr}
+.fg.three{grid-template-columns:1fr 1fr 1fr}
+.f{display:flex;flex-direction:column;gap:.4rem}
+label{font-size:.78rem;font-weight:500;color:var(--muted);letter-spacing:.04em}
+label .req{color:var(--cyan);margin-left:2px}
+input[type=text],input[type=email],input[type=tel],input[type=date],select,textarea{
+  background:var(--inp);border:1px solid var(--border);border-radius:5px;
+  padding:.65rem .85rem;color:var(--white);font-family:'Figtree',sans-serif;
+  font-size:.875rem;outline:none;transition:border-color .2s,box-shadow .2s;width:100%}
+input:focus,select:focus,textarea:focus{border-color:var(--cyan);box-shadow:0 0 0 3px var(--cyan-glow)}
+input.err,select.err,textarea.err{border-color:var(--error)}
+textarea{resize:vertical;min-height:90px}
+select{appearance:none;cursor:pointer}
+select option{background:#1a1d22}
+.rg{display:flex;gap:1.25rem;align-items:center;flex-wrap:wrap;padding:.5rem 0}
+.ro{display:flex;align-items:center;gap:.45rem;font-size:.875rem;color:var(--muted);cursor:pointer}
+.ro input{accent-color:var(--cyan);cursor:pointer}
+.cond{display:none;margin-top:.75rem;padding:.85rem;background:var(--card);border:1px solid var(--border);border-radius:5px}
+.cond.show{display:block}
+.eblk{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:1.25rem;margin-bottom:1rem}
+.eblk-title{font-size:.8rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:1rem}
+.sig-wrap{border:1px solid var(--border);border-radius:8px;overflow:hidden;background:#fff;position:relative;margin-bottom:.5rem}
+#sigCanvas{display:block;width:100%;height:180px;cursor:crosshair;touch-action:none}
+.sig-ph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:.85rem;color:#aaa;pointer-events:none;transition:opacity .2s}
+.sig-acts{display:flex;gap:.75rem;margin-top:.5rem}
+.btn-clr{font-size:.78rem;font-weight:500;color:var(--muted);background:transparent;border:1px solid var(--border);border-radius:4px;padding:.4rem .85rem;cursor:pointer;transition:all .2s}
+.btn-clr:hover{border-color:var(--error);color:var(--error)}
+.upzone{border:2px dashed var(--border);border-radius:8px;padding:2rem;text-align:center;cursor:pointer;transition:border-color .2s,background .2s;background:var(--inp);position:relative}
+.upzone:hover,.upzone.drag{border-color:var(--cyan);background:var(--cyan-glow)}
+.upzone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.upzone .ico{font-size:2rem;margin-bottom:.5rem}
+.upzone p{font-size:.85rem;color:var(--muted);margin-bottom:.25rem}
+.upzone small{font-size:.75rem;color:#555}
+.uprev{margin-top:1rem;display:none;border-radius:6px;overflow:hidden;border:1px solid var(--border)}
+.uprev img{width:100%;max-height:200px;object-fit:contain;background:#fff}
+.uprev .uplbl{padding:.5rem .75rem;background:var(--card);font-size:.75rem;color:var(--muted);display:flex;align-items:center;justify-content:space-between}
+.rmbtn{color:var(--error);cursor:pointer;font-size:.75rem;background:none;border:none;font-family:inherit}
+.atwill{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:1.5rem;font-size:.82rem;color:var(--muted);line-height:1.75;margin-bottom:1.5rem;max-height:200px;overflow-y:auto}
+.atwill p{margin-bottom:.75rem}
+.atwill p:last-child{margin-bottom:0}
+.brow{display:flex;gap:1rem;justify-content:flex-end;margin-top:2rem;padding-top:1.5rem;border-top:1px solid var(--border)}
+.btn-bk{padding:.75rem 1.5rem;background:transparent;border:1px solid var(--border);border-radius:5px;color:var(--muted);font-family:'Figtree',sans-serif;font-size:.875rem;font-weight:500;cursor:pointer;transition:all .18s}
+.btn-bk:hover{border-color:var(--muted);color:var(--white)}
+.btn-nx{padding:.75rem 1.75rem;background:var(--cyan);border:none;border-radius:5px;color:var(--black);font-family:'Figtree',sans-serif;font-size:.875rem;font-weight:600;cursor:pointer;transition:background .18s}
+.btn-nx:hover{background:var(--cyan-dim)}
+.subbtn{display:flex;align-items:center;justify-content:center;gap:.6rem;width:100%;padding:1rem;background:var(--cyan);border:none;border-radius:6px;color:var(--black);font-family:'Figtree',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;transition:background .2s;margin-top:1.5rem}
+.subbtn:hover{background:var(--cyan-dim)}
+.subbtn:disabled{background:#2a3a3e;color:#555;cursor:not-allowed}
+.suc{display:none;text-align:center;padding:4rem 2rem}
+.suc.show{display:block}
+.suc-ico{width:72px;height:72px;border-radius:50%;background:rgba(62,207,142,.12);border:2px solid var(--success);display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem;font-size:2rem}
+.suc h2{font-size:1.75rem;font-weight:600;margin-bottom:.75rem}
+.suc p{font-size:.9rem;color:var(--muted);max-width:44ch;margin:0 auto;line-height:1.65}
+.dnbtn{display:inline-flex;align-items:center;gap:.5rem;margin-top:1.75rem;padding:.75rem 1.5rem;background:transparent;border:1px solid var(--border);border-radius:5px;color:var(--muted);font-family:'Figtree',sans-serif;font-size:.875rem;font-weight:500;cursor:pointer;transition:all .2s}
+.dnbtn:hover{border-color:var(--cyan);color:var(--cyan)}
+.toast{position:fixed;bottom:2rem;right:2rem;padding:.85rem 1.25rem;border-radius:8px;font-size:.875rem;font-weight:500;display:none;align-items:center;gap:.6rem;z-index:999}
+.toast.show{display:flex;background:#2a1515;border:1px solid var(--error);color:var(--error)}
+.spin{width:18px;height:18px;border:2px solid rgba(0,0,0,.2);border-top-color:var(--black);border-radius:50%;animation:sp .7s linear infinite;display:none}
+@keyframes sp{to{transform:rotate(360deg)}}
+@media(max-width:600px){.fg{grid-template-columns:1fr}.fg.three{grid-template-columns:1fr 1fr}nav{padding:1rem 1.25rem}.wrap{padding:2rem 1rem 5rem}}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo"><span class="cy">CITY</span><span class="bl">BLOCK</span><sup>®</sup></div>
+  <a href="index.html" class="back">← Back to Careers</a>
+</nav>
+
+<div class="wrap">
+
+  <!-- HEADER -->
+  <div class="hdr" id="appHdr">
+    <span class="role-tag">Now Hiring</span>
+    <h1>Maintenance Worker Application</h1>
+    <p>CityBlock Properties, INC. · CityBlock Communities, LLC. &amp; its subsidiaries<br>367 Prince Ave. #3H, Athens, GA 30601 · 678-661-1347</p>
+    <div class="eoe">CityBlock Properties, INC., CityBlock Communities, LLC. and its Subsidiaries is an equal opportunity employer. This application will not be used for limiting or excluding any applicant from consideration for employment on a basis prohibited by local, state, or federal law. Should an applicant need reasonable accommodation in the application process, please contact a company representative.</div>
+  </div>
+
+  <!-- PROGRESS -->
+  <div class="prog" id="pb">
+    <div class="ps done" id="ps1"></div>
+    <div class="ps" id="ps2"></div>
+    <div class="ps" id="ps3"></div>
+    <div class="ps" id="ps4"></div>
+    <div class="ps" id="ps5"></div>
+  </div>
+
+  <div id="mainForm">
+
+    <!-- STEP 1: APPLICANT INFO -->
+    <div class="step active" id="step1">
+      <div class="slbl">Step <span>1 of 5</span> — Applicant Information</div>
+      <div class="stitle">Personal Details</div>
+      <div class="fg">
+        <div class="f"><label>Full Name <span class="req">*</span></label><input type="text" id="f_name" placeholder="First and Last Name"/></div>
+        <div class="f"><label>Date of Application <span class="req">*</span></label><input type="date" id="f_date"/></div>
+      </div>
+      <div class="fg full">
+        <div class="f"><label>Street Address <span class="req">*</span></label><input type="text" id="f_addr" placeholder="123 Main St"/></div>
+      </div>
+      <div class="fg three">
+        <div class="f"><label>City <span class="req">*</span></label><input type="text" id="f_city" placeholder="Athens"/></div>
+        <div class="f"><label>State <span class="req">*</span></label><input type="text" id="f_state" placeholder="GA"/></div>
+        <div class="f"><label>Zip <span class="req">*</span></label><input type="text" id="f_zip" placeholder="30601"/></div>
+      </div>
+      <div class="fg">
+        <div class="f"><label>Phone <span class="req">*</span></label><input type="tel" id="f_phone" placeholder="(555) 555-5555"/></div>
+        <div class="f"><label>Email <span class="req">*</span></label><input type="email" id="f_email" placeholder="you@email.com"/></div>
+      </div>
+      <div class="stitle" style="margin-top:2rem">Employment Position</div>
+      <div class="fg">
+        <div class="f"><label>Position Type</label>
+          <div class="rg">
+            <label class="ro"><input type="radio" name="posType" value="Full-time" checked/> Full-time</label>
+            <label class="ro"><input type="radio" name="posType" value="Part-time"/> Part-time</label>
+          </div>
+        </div>
+        <div class="f"><label>How did you hear about this position? <span class="req">*</span></label>
+          <select id="f_hear"><option value="">— Select —</option><option>ZipRecruiter</option><option>Indeed</option><option>Company Website</option><option>Referral</option><option>Social Media</option><option>Other</option></select>
+        </div>
+      </div>
+      <div class="fg">
+        <div class="f"><label>Days Available <span class="req">*</span></label><input type="text" id="f_days" placeholder="e.g. Mon–Fri, weekends as needed"/></div>
+        <div class="f"><label>Hours / Shift Available <span class="req">*</span></label><input type="text" id="f_hours" placeholder="e.g. 7am–5pm, flexible"/></div>
+      </div>
+      <div class="fg">
+        <div class="f"><label>Available for Overtime?</label>
+          <div class="rg">
+            <label class="ro"><input type="radio" name="overtime" value="Yes"/> Yes</label>
+            <label class="ro"><input type="radio" name="overtime" value="No"/> No</label>
+          </div>
+        </div>
+        <div class="f"><label>Available Start Date <span class="req">*</span></label><input type="date" id="f_start"/></div>
+      </div>
+      <div class="fg">
+        <div class="f"><label>Reliable Transportation?</label>
+          <div class="rg">
+            <label class="ro"><input type="radio" name="transport" value="Yes" checked/> Yes</label>
+            <label class="ro"><input type="radio" name="transport" value="No"/> No</label>
+          </div>
+        </div>
+        <div class="f"><label>Salary Desired</label><input type="text" id="f_salary" placeholder="e.g. $25/hr or $55,000/yr"/></div>
+      </div>
+      <div class="brow">
+        <button class="btn-nx" onclick="goNext(1)">Continue →</button>
+      </div>
+    </div>
+
+    <!-- STEP 2: PERSONAL INFO -->
+    <div class="step" id="step2">
+      <div class="slbl">Step <span>2 of 5</span> — Personal Information</div>
+      <div class="stitle">Background &amp; Eligibility</div>
+      <div class="fg full">
+        <div class="f"><label>Have you previously applied to or worked for CityBlock?</label>
+          <div class="rg">
+            <label class="ro"><input type="radio" name="prevCB" value="Yes" id="prevCBYes" onchange="showCond('cond_prevCB', true)"/> Yes</label>
+            <label class="ro"><input type="radio" name="prevCB" value="No" checked onchange="showCond('cond_prevCB', false)"/> No</label>
+          </div>
+          <div class="cond" id="cond_prevCB">
+            <label>If Yes, when?</label>
+            <input type="text" id="f_prevCBwhen" placeholder="Year or approximate date" style="margin-top:.4rem"/>
+          </div>
+        </div>
+      </div>
+      <div class="fg">
+        <div class="f"><label>Are you 18 years of age or older? <span class="req">*</span></label>
+          <div class="rg">
+            <label class="ro"><input type="radio" name="age18" value="Yes"/> Yes</label>
+            <label class="ro"><input type="radio" name="age18" value="No"/> No</label>
+          </div>
+        </div>
+        <div class="f"><label>U.S. citizen or authorized to work in the U.S.? <span class="req">*</span></label>
+          <div class="rg">
+            <label class="ro"><input type="radio" name="usWork" value="Yes"/> Yes</label>
+            <label class="ro"><input type="radio" name="usWork" value="No"/> No</label>
+          </div>
+        </div>
+      </div>
+      <div class="fg full">
+        <div class="f"><label>Proof of citizenship / legal status document</label><input type="text" id="f_citizenDoc" placeholder="e.g. U.S. Passport, Green Card, Work Visa"/></div>
+      </div>
+      <div class="fg">
+        <div class="f"><label>Consent to mandatory drug test? <span class="req">*</span></label>
+          <div class="rg">
+            <label class="ro"><input type="radio" name="drugTest" value="Yes"/> Yes</label>
+            <label class="ro"><input type="radio" name="drugTest" value="No"/> No</label>
+          </div>
+        </div>
+        <div class="f"><label>Require job accommodations (ADA)?</label>
+          <div class="rg">
+            <label class="ro"><input type="radio" name="ada" value="Yes" onchange="showCond('cond_ada', true)"/> Yes</label>
+            <label class="ro"><input type="radio" name="ada" value="No" checked onchange="showCond('cond_ada', false)"/> No</label>
+          </div>
+          <div class="cond" id="cond_ada">
+            <label>Please describe accommodations required:</label>
+            <textarea id="f_adaDesc" style="margin-top:.4rem" placeholder="Describe needs..."></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="fg full">
+        <div class="f"><label>Have you ever been convicted of a criminal offense (felony or misdemeanor)?</label>
+          <div class="rg">
+            <label class="ro"><input type="radio" name="criminal" value="Yes" onchange="showCond('cond_criminal', true)"/> Yes</label>
+            <label class="ro"><input type="radio" name="criminal" value="No" checked onchange="showCond('cond_criminal', false)"/> No</label>
+          </div>
+          <div class="cond" id="cond_criminal">
+            <label>Please state the nature of the crime(s), when/where convicted, and disposition:</label>
+            <textarea id="f_crimDesc" style="margin-top:.4rem" placeholder="Describe criminal history..."></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="stitle" style="margin-top:2rem">Skills &amp; Qualifications</div>
+      <div class="fg full">
+        <div class="f"><label>List your skills and qualifications relevant to this position <span class="req">*</span></label>
+          <textarea id="f_skills" rows="5" placeholder="Describe your HVAC, plumbing, electrical, carpentry, flooring, and other relevant skills and certifications..."></textarea>
+        </div>
+      </div>
+      <div class="brow">
+        <button class="btn-bk" onclick="goBack(2)">← Back</button>
+        <button class="btn-nx" onclick="goNext(2)">Continue →</button>
+      </div>
+    </div>
+
+    <!-- STEP 3: EDUCATION -->
+    <div class="step" id="step3">
+      <div class="slbl">Step <span>3 of 5</span> — Education &amp; Training</div>
+      <div class="stitle">High School</div>
+      <div class="fg three">
+        <div class="f"><label>School Name</label><input type="text" id="f_hsName" placeholder="School name"/></div>
+        <div class="f"><label>Location (City, State)</label><input type="text" id="f_hsLoc" placeholder="City, State"/></div>
+        <div class="f"><label>Year / Degree</label><input type="text" id="f_hsYear" placeholder="e.g. 2005 / GED"/></div>
+      </div>
+      <div class="stitle" style="margin-top:1.5rem">College / University</div>
+      <div class="fg three">
+        <div class="f"><label>School Name</label><input type="text" id="f_colName" placeholder="School name"/></div>
+        <div class="f"><label>Location (City, State)</label><input type="text" id="f_colLoc" placeholder="City, State"/></div>
+        <div class="f"><label>Year / Degree</label><input type="text" id="f_colYear" placeholder="e.g. 2008 / Associates"/></div>
+      </div>
+      <div class="stitle" style="margin-top:1.5rem">Vocational / Specialized Training</div>
+      <div class="fg three">
+        <div class="f"><label>Program Name</label><input type="text" id="f_vocName" placeholder="Program name"/></div>
+        <div class="f"><label>Location (City, State)</label><input type="text" id="f_vocLoc" placeholder="City, State"/></div>
+        <div class="f"><label>Year / Certification</label><input type="text" id="f_vocYear" placeholder="e.g. 2010 / EPA 608"/></div>
+      </div>
+      <div class="stitle" style="margin-top:1.5rem">Military Service</div>
+      <div class="f"><label>Member of Armed Services?</label>
+        <div class="rg">
+          <label class="ro"><input type="radio" name="military" value="Yes" onchange="showCond('cond_mil', true)"/> Yes</label>
+          <label class="ro"><input type="radio" name="military" value="No" checked onchange="showCond('cond_mil', false)"/> No</label>
+        </div>
+      </div>
+      <div class="cond" id="cond_mil" style="margin-top:.75rem">
+        <div class="fg">
+          <div class="f"><label>Branch</label><input type="text" id="f_milBranch" placeholder="e.g. Army"/></div>
+          <div class="f"><label>Rank at Discharge</label><input type="text" id="f_milRank" placeholder="e.g. Sergeant"/></div>
+        </div>
+        <div class="fg">
+          <div class="f"><label>Years Served</label><input type="text" id="f_milYears" placeholder="e.g. 4 years"/></div>
+          <div class="f"><label>Relevant Military Skills</label><input type="text" id="f_milSkills" placeholder="Skills applicable to this role"/></div>
+        </div>
+      </div>
+      <div class="brow">
+        <button class="btn-bk" onclick="goBack(3)">← Back</button>
+        <button class="btn-nx" onclick="goNext(3)">Continue →</button>
+      </div>
+    </div>
+
+    <!-- STEP 4: EMPLOYMENT HISTORY -->
+    <div class="step" id="step4">
+      <div class="slbl">Step <span>4 of 5</span> — Previous Employment</div>
+      <p style="font-size:.82rem;color:var(--muted);margin-bottom:1.5rem">Please provide contact info. We will not contact current employers without your authorization.</p>
+      <div class="eblk">
+        <div class="eblk-title">Employer #1 (Most Recent)</div>
+        <div class="fg"><div class="f"><label>Employer Name</label><input type="text" id="e1_name"/></div><div class="f"><label>Job Title</label><input type="text" id="e1_title"/></div></div>
+        <div class="fg"><div class="f"><label>Supervisor Name</label><input type="text" id="e1_supName"/></div><div class="f"><label>Supervisor Phone</label><input type="tel" id="e1_supPhone"/></div></div>
+        <div class="fg"><div class="f"><label>Supervisor Email</label><input type="email" id="e1_supEmail"/></div><div class="f"><label>Employer Phone</label><input type="tel" id="e1_phone"/></div></div>
+        <div class="fg"><div class="f"><label>Dates Employed</label><input type="text" id="e1_dates" placeholder="Jan 2018 – Mar 2022"/></div><div class="f"><label>Reason for Leaving</label><input type="text" id="e1_reason"/></div></div>
+      </div>
+      <div class="eblk">
+        <div class="eblk-title">Employer #2</div>
+        <div class="fg"><div class="f"><label>Employer Name</label><input type="text" id="e2_name"/></div><div class="f"><label>Job Title</label><input type="text" id="e2_title"/></div></div>
+        <div class="fg"><div class="f"><label>Supervisor Name</label><input type="text" id="e2_supName"/></div><div class="f"><label>Supervisor Phone</label><input type="tel" id="e2_supPhone"/></div></div>
+        <div class="fg"><div class="f"><label>Supervisor Email</label><input type="email" id="e2_supEmail"/></div><div class="f"><label>Employer Phone</label><input type="tel" id="e2_phone"/></div></div>
+        <div class="fg"><div class="f"><label>Dates Employed</label><input type="text" id="e2_dates"/></div><div class="f"><label>Reason for Leaving</label><input type="text" id="e2_reason"/></div></div>
+      </div>
+      <div class="eblk">
+        <div class="eblk-title">Employer #3</div>
+        <div class="fg"><div class="f"><label>Employer Name</label><input type="text" id="e3_name"/></div><div class="f"><label>Job Title</label><input type="text" id="e3_title"/></div></div>
+        <div class="fg"><div class="f"><label>Supervisor Name</label><input type="text" id="e3_supName"/></div><div class="f"><label>Supervisor Phone</label><input type="tel" id="e3_supPhone"/></div></div>
+        <div class="fg"><div class="f"><label>Supervisor Email</label><input type="email" id="e3_supEmail"/></div><div class="f"><label>Employer Phone</label><input type="tel" id="e3_phone"/></div></div>
+        <div class="fg"><div class="f"><label>Dates Employed</label><input type="text" id="e3_dates"/></div><div class="f"><label>Reason for Leaving</label><input type="text" id="e3_reason"/></div></div>
+      </div>
+      <div class="brow">
+        <button class="btn-bk" onclick="goBack(4)">← Back</button>
+        <button class="btn-nx" onclick="goNext(4)">Continue →</button>
+      </div>
+    </div>
+
+    <!-- STEP 5: SIGNATURE + LICENSE -->
+    <div class="step" id="step5">
+      <div class="slbl">Step <span>5 of 5</span> — Signature &amp; Submission</div>
+      <div class="stitle">At-Will Employment Agreement</div>
+      <div class="atwill">
+        <p>The relationship between you and CityBlock Properties, INC., CityBlock Communities, LLC. and its subsidiaries is referred to as "employment at will." This means that your employment can be terminated at any time for any reason, with or without cause, with or without notice, by you or CityBlock Properties, INC., CityBlock Communities, LLC. and its subsidiaries.</p>
+        <p>No representative of CityBlock Properties, INC., CityBlock Communities, LLC. and its subsidiaries has authority to enter into any agreement contrary to the foregoing "employment at will" relationship. You understand that your employment is "at will," and that you acknowledge that no oral or written statements or representations regarding your employment can alter your at-will employment status, except for a written statement signed by you and either our Executive Vice-President/Chief Operations Officer or the Company's President.</p>
+        <p>I authorize CityBlock Properties, INC., CityBlock Communities, LLC. and its subsidiaries to contact former employers and education organizations regarding my employment and education. I authorize my former employers and educational organizations to fully and freely communicate information regarding my previous employment, attendance, and grades. I authorize those persons designated as references to fully and freely communicate information regarding my previous employment and education.</p>
+      </div>
+      <div class="stitle">Applicant Signature <span style="color:var(--cyan)">*</span></div>
+      <p style="font-size:.8rem;color:var(--muted);margin-bottom:.75rem">Sign below using your mouse, trackpad, or finger on mobile.</p>
+      <div class="sig-wrap">
+        <canvas id="sigCanvas"></canvas>
+        <div class="sig-ph" id="sigPh">Sign here…</div>
+      </div>
+      <div class="sig-acts">
+        <button class="btn-clr" onclick="clearSig()">Clear Signature</button>
+      </div>
+      <div class="stitle" style="margin-top:2rem">Driver's License Photo <span style="color:var(--cyan)">*</span></div>
+      <p style="font-size:.8rem;color:var(--muted);margin-bottom:.75rem">Upload a clear photo of the front of your valid driver's license.</p>
+      <div class="upzone" id="upzone">
+        <input type="file" id="licFile" accept="image/*" onchange="handleUpload(this)"/>
+        <div class="ico">🪪</div>
+        <p>Drag &amp; drop or click to upload</p>
+        <small>JPG, PNG, HEIC — max 10MB</small>
+      </div>
+      <div class="uprev" id="uprev">
+        <img id="licImg" src="" alt="Driver's license"/>
+        <div class="uplbl">
+          <span id="licFileName">license.jpg</span>
+          <button class="rmbtn" onclick="removeLic()">✕ Remove</button>
+        </div>
+      </div>
+      <button class="subbtn" id="subBtn" onclick="submitApp()">
+        <div class="spin" id="spinner"></div>
+        <span id="subTxt">Submit Application →</span>
+      </button>
+      <div class="brow" style="border:none;padding-top:.5rem;justify-content:flex-start">
+        <button class="btn-bk" onclick="goBack(5)">← Back</button>
+      </div>
+    </div>
+
+  </div><!-- /mainForm -->
+
+  <!-- SUCCESS SCREEN -->
+  <div class="suc" id="sucScreen">
+    <div class="suc-ico">✓</div>
+    <h2>Application Submitted!</h2>
+    <p>Thank you for applying for the Maintenance Worker position at CityBlock. We'll review your application and be in touch shortly.</p>
+    <button class="dnbtn" id="dnBtn">⬇ Download Your Application (PDF)</button>
+  </div>
+
+</div><!-- /wrap -->
+
+<div class="toast" id="toastEl"></div>
+
+<script>
+// ── STATE ──
+let curStep = 1, licDataURL = null, hasSig = false, isDrawing = false;
+
+// ── TOAST ──
+function showToast(msg) {
+  const t = document.getElementById('toastEl');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._t);
+  t._t = setTimeout(() => t.classList.remove('show'), 4000);
+}
+
+// ── PROGRESS ──
+function setProgress(s) {
+  for (let i = 1; i <= 5; i++)
+    document.getElementById('ps' + i).classList.toggle('done', i <= s);
+}
+
+// ── NAVIGATION ──
+function goNext(from) {
+  if (!validate(from)) return;
+  document.getElementById('step' + from).classList.remove('active');
+  curStep = from + 1;
+  document.getElementById('step' + curStep).classList.add('active');
+  setProgress(curStep);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+function goBack(from) {
+  document.getElementById('step' + from).classList.remove('active');
+  curStep = from - 1;
+  document.getElementById('step' + curStep).classList.add('active');
+  setProgress(curStep);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ── VALIDATION ──
+function reqField(id) {
+  const el = document.getElementById(id);
+  const ok = el && el.value.trim() !== '';
+  if (el) el.classList.toggle('err', !ok);
+  return ok;
+}
+function reqRadio(name) {
+  return !!document.querySelector('input[name="' + name + '"]:checked');
+}
+function validate(step) {
+  if (step === 1) {
+    const fields = ['f_name','f_date','f_addr','f_city','f_state','f_zip','f_phone','f_email','f_days','f_hours','f_start'];
+    const ok = fields.map(reqField).every(Boolean);
+    const hear = document.getElementById('f_hear');
+    if (!hear.value) { hear.classList.add('err'); showToast('Please fill in all required fields.'); return false; }
+    hear.classList.remove('err');
+    if (!ok) { showToast('Please fill in all required fields.'); return false; }
+  }
+  if (step === 2) {
+    if (!reqRadio('age18') || !reqRadio('usWork') || !reqRadio('drugTest')) {
+      showToast('Please answer all required questions.'); return false;
+    }
+    if (!reqField('f_skills')) { showToast('Please describe your skills and qualifications.'); return false; }
+  }
+  return true;
+}
+
+// ── CONDITIONAL FIELDS ──
+function showCond(id, show) {
+  document.getElementById(id).classList.toggle('show', show);
+}
+
+// ── SIGNATURE ──
+const canvas = document.getElementById('sigCanvas');
+const ctx = canvas.getContext('2d');
+function resizeCanvas() {
+  const w = canvas.parentElement.getBoundingClientRect().width;
+  canvas.width = w; canvas.height = 180;
+  ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, w, 180);
+  ctx.strokeStyle = '#111'; ctx.lineWidth = 2.2;
+  ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+function getXY(e) {
+  const r = canvas.getBoundingClientRect();
+  if (e.touches) return { x: e.touches[0].clientX - r.left, y: e.touches[0].clientY - r.top };
+  return { x: e.clientX - r.left, y: e.clientY - r.top };
+}
+canvas.addEventListener('mousedown', e => { isDrawing = true; const p = getXY(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); });
+canvas.addEventListener('mousemove', e => {
+  if (!isDrawing) return;
+  const p = getXY(e); ctx.lineTo(p.x, p.y); ctx.stroke();
+  hasSig = true; document.getElementById('sigPh').style.opacity = '0';
+});
+canvas.addEventListener('mouseup', () => isDrawing = false);
+canvas.addEventListener('mouseleave', () => isDrawing = false);
+canvas.addEventListener('touchstart', e => { e.preventDefault(); isDrawing = true; const p = getXY(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); }, { passive: false });
+canvas.addEventListener('touchmove', e => {
+  e.preventDefault(); if (!isDrawing) return;
+  const p = getXY(e); ctx.lineTo(p.x, p.y); ctx.stroke();
+  hasSig = true; document.getElementById('sigPh').style.opacity = '0';
+}, { passive: false });
+canvas.addEventListener('touchend', () => isDrawing = false);
+function clearSig() {
+  ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+  hasSig = false; document.getElementById('sigPh').style.opacity = '1';
+}
+
+// ── LICENSE UPLOAD ──
+function handleUpload(input) {
+  const file = input.files[0]; if (!file) return;
+  if (file.size > 10 * 1024 * 1024) { showToast('File too large. Max 10MB.'); return; }
+  const reader = new FileReader();
+  reader.onload = e => {
+    licDataURL = e.target.result;
+    document.getElementById('licImg').src = licDataURL;
+    document.getElementById('licFileName').textContent = file.name;
+    document.getElementById('uprev').style.display = 'block';
+    document.getElementById('upzone').style.borderColor = 'var(--cyan)';
+  };
+  reader.readAsDataURL(file);
+}
+function removeLic() {
+  licDataURL = null;
+  document.getElementById('licFile').value = '';
+  document.getElementById('uprev').style.display = 'none';
+  document.getElementById('upzone').style.borderColor = '';
+}
+
+// ── COLLECT FORM DATA ──
+function gv(id) { const el = document.getElementById(id); return el ? el.value.trim() : ''; }
+function gr(name) { const el = document.querySelector('input[name="' + name + '"]:checked'); return el ? el.value : ''; }
+function collectData() {
+  return {
+    name: gv('f_name'), appDate: gv('f_date'), address: gv('f_addr'),
+    city: gv('f_city'), state: gv('f_state'), zip: gv('f_zip'),
+    phone: gv('f_phone'), email: gv('f_email'),
+    posType: gr('posType'), hearAbout: gv('f_hear'),
+    daysAvailable: gv('f_days'), hoursAvailable: gv('f_hours'),
+    overtime: gr('overtime'), startDate: gv('f_start'),
+    transport: gr('transport'), salary: gv('f_salary'),
+    prevCB: gr('prevCB'), prevCBWhen: gv('f_prevCBwhen'),
+    age18: gr('age18'), usWork: gr('usWork'), citizenDoc: gv('f_citizenDoc'),
+    drugTest: gr('drugTest'), ada: gr('ada'), adaDesc: gv('f_adaDesc'),
+    criminal: gr('criminal'), crimDesc: gv('f_crimDesc'), skills: gv('f_skills'),
+    hsName: gv('f_hsName'), hsLoc: gv('f_hsLoc'), hsYear: gv('f_hsYear'),
+    colName: gv('f_colName'), colLoc: gv('f_colLoc'), colYear: gv('f_colYear'),
+    vocName: gv('f_vocName'), vocLoc: gv('f_vocLoc'), vocYear: gv('f_vocYear'),
+    military: gr('military'), milBranch: gv('f_milBranch'), milRank: gv('f_milRank'),
+    milYears: gv('f_milYears'), milSkills: gv('f_milSkills'),
+    e1n: gv('e1_name'), e1t: gv('e1_title'), e1sn: gv('e1_supName'),
+    e1sp: gv('e1_supPhone'), e1se: gv('e1_supEmail'), e1p: gv('e1_phone'),
+    e1d: gv('e1_dates'), e1r: gv('e1_reason'),
+    e2n: gv('e2_name'), e2t: gv('e2_title'), e2sn: gv('e2_supName'),
+    e2sp: gv('e2_supPhone'), e2se: gv('e2_supEmail'), e2p: gv('e2_phone'),
+    e2d: gv('e2_dates'), e2r: gv('e2_reason'),
+    e3n: gv('e3_name'), e3t: gv('e3_title'), e3sn: gv('e3_supName'),
+    e3sp: gv('e3_supPhone'), e3se: gv('e3_supEmail'), e3p: gv('e3_phone'),
+    e3d: gv('e3_dates'), e3r: gv('e3_reason'),
+  };
+}
+
+// ── PDF GENERATION ──
+async function generatePDF(d) {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit: 'pt', format: 'letter' });
+  const M = 50, PW = 612, UW = PW - M * 2;
+  let y = M;
+  const CY = [0,180,216], BK = [10,10,10], MT = [130,135,145], WH = [255,255,255];
+
+  // Background + header bar
+  doc.setFillColor(...BK); doc.rect(0, 0, 612, 792, 'F');
+  doc.setFillColor(19, 21, 24); doc.rect(0, 0, 612, 68, 'F');
+  doc.setFillColor(...CY); doc.rect(0, 67, 612, 2, 'F');
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(16); doc.setTextColor(...WH);
+  doc.text('CITY', M, 42);
+  const cw = doc.getTextWidth('CITY');
+  doc.setTextColor(...CY); doc.text('BLOCK', M + cw + 2, 42);
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5); doc.setTextColor(...MT);
+  doc.text('Job Application — Maintenance Worker', M, 56);
+  doc.text('367 Prince Ave. #3H, Athens, GA 30601', PW - M, 56, { align: 'right' });
+  y = 90;
+
+  function newPage() {
+    doc.addPage();
+    doc.setFillColor(...BK); doc.rect(0, 0, 612, 792, 'F');
+    doc.setFillColor(19, 21, 24); doc.rect(0, 0, 612, 26, 'F');
+    doc.setFillColor(...CY); doc.rect(0, 25, 612, 1, 'F');
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(8); doc.setTextColor(...WH);
+    doc.text('CITY', M, 17);
+    doc.setTextColor(...CY); doc.text('BLOCK', M + doc.getTextWidth('CITY') + 1, 17);
+    doc.setFont('helvetica', 'normal'); doc.setTextColor(...MT);
+    doc.text('Application · ' + d.name, PW - M, 17, { align: 'right' });
+    y = 46;
+  }
+  function chk(n) { if (y + n > 760) newPage(); }
+
+  function sec(title) {
+    chk(44); y += 8;
+    doc.setFillColor(...CY); doc.rect(M, y, 3, 13, 'F');
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(9.5); doc.setTextColor(...CY);
+    doc.text(title.toUpperCase(), M + 9, y + 10);
+    doc.setDrawColor(30, 33, 38); doc.setLineWidth(0.5);
+    doc.line(M, y + 17, PW - M, y + 17); y += 25;
+  }
+  function two(l1, v1, l2, v2) {
+    chk(36); const hw = (UW - 12) / 2;
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(7); doc.setTextColor(...MT);
+    doc.text(l1.toUpperCase(), M, y);
+    if (l2) doc.text(l2.toUpperCase(), M + hw + 12, y);
+    doc.setFontSize(8.5); doc.setTextColor(...WH);
+    const s1 = doc.splitTextToSize(v1 || '—', hw - 4);
+    const s2 = doc.splitTextToSize(v2 || '—', hw - 4);
+    doc.text(s1, M, y + 11);
+    if (l2) doc.text(s2, M + hw + 12, y + 11);
+    y += Math.max(s1.length, s2.length) * 10.5 + 14;
+  }
+  function one(label, val) {
+    chk(36);
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(7); doc.setTextColor(...MT);
+    doc.text(label.toUpperCase(), M, y);
+    doc.setFontSize(8.5); doc.setTextColor(...WH);
+    const lines = doc.splitTextToSize(val || '—', UW);
+    doc.text(lines, M, y + 11); y += lines.length * 10.5 + 14;
+  }
+  function yn(l1, v1, l2, v2) {
+    chk(30); const hw = (UW - 12) / 2;
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(7); doc.setTextColor(...MT);
+    doc.text(l1.toUpperCase(), M, y);
+    if (l2) doc.text(l2.toUpperCase(), M + hw + 12, y);
+    doc.setFontSize(9); doc.setFont('helvetica', 'bold');
+    const c1 = v1 === 'Yes' ? CY : v1 === 'No' ? [220, 80, 80] : WH;
+    doc.setTextColor(...c1); doc.text(v1 || '—', M, y + 12);
+    if (l2) {
+      const c2 = v2 === 'Yes' ? CY : v2 === 'No' ? [220, 80, 80] : WH;
+      doc.setTextColor(...c2); doc.text(v2 || '—', M + hw + 12, y + 12);
+    }
+    y += 26;
+  }
+  function ml(label, val) {
+    if (!val) return; chk(50);
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(7); doc.setTextColor(...MT);
+    doc.text(label.toUpperCase(), M, y); y += 11;
+    doc.setFontSize(8.5); doc.setTextColor(...WH);
+    const lines = doc.splitTextToSize(val, UW);
+    doc.text(lines, M, y); y += lines.length * 10.5 + 10;
+  }
+
+  sec('Applicant Information');
+  two('Full Name', d.name, 'Date of Application', d.appDate);
+  one('Address', d.address + ', ' + d.city + ', ' + d.state + ' ' + d.zip);
+  two('Phone', d.phone, 'Email', d.email);
+
+  sec('Employment Position');
+  two('Position Type', d.posType, 'How did you hear?', d.hearAbout);
+  two('Days Available', d.daysAvailable, 'Hours / Shift', d.hoursAvailable);
+  two('Available for Overtime?', d.overtime, 'Available Start Date', d.startDate);
+  two('Reliable Transportation?', d.transport, 'Salary Desired', d.salary);
+
+  sec('Personal Information');
+  yn('Previously worked at CityBlock?', d.prevCB, 'If yes, when?', d.prevCBWhen);
+  yn('18 years or older?', d.age18, 'Authorized to work in U.S.?', d.usWork);
+  one('Proof of Citizenship / Legal Status', d.citizenDoc);
+  yn('Consent to drug test?', d.drugTest, 'Requires ADA accommodation?', d.ada);
+  if (d.ada === 'Yes' && d.adaDesc) ml('Accommodation Description', d.adaDesc);
+  yn('Criminal conviction?', d.criminal, '', '');
+  if (d.criminal === 'Yes' && d.crimDesc) ml('Criminal History', d.crimDesc);
+  ml('Skills & Qualifications', d.skills);
+
+  sec('Education & Training');
+  if (d.hsName || d.hsYear) { chk(30); doc.setFont('helvetica','bold');doc.setFontSize(7.5);doc.setTextColor(...MT);doc.text('HIGH SCHOOL',M,y);y+=12; two('School',d.hsName,'Location / Year',d.hsLoc+' · '+d.hsYear); }
+  if (d.colName || d.colYear) { chk(30); doc.setFont('helvetica','bold');doc.setFontSize(7.5);doc.setTextColor(...MT);doc.text('COLLEGE / UNIVERSITY',M,y);y+=12; two('School',d.colName,'Location / Year',d.colLoc+' · '+d.colYear); }
+  if (d.vocName || d.vocYear) { chk(30); doc.setFont('helvetica','bold');doc.setFontSize(7.5);doc.setTextColor(...MT);doc.text('VOCATIONAL / TRAINING',M,y);y+=12; two('Program',d.vocName,'Location / Year',d.vocLoc+' · '+d.vocYear); }
+  if (d.military === 'Yes') { chk(60); doc.setFont('helvetica','bold');doc.setFontSize(7.5);doc.setTextColor(...MT);doc.text('MILITARY',M,y);y+=12; two('Branch',d.milBranch,'Rank',d.milRank); two('Years Served',d.milYears,'Skills',d.milSkills); }
+
+  sec('Previous Employment');
+  [[d.e1n,d.e1t,d.e1sn,d.e1sp,d.e1se,d.e1p,d.e1d,d.e1r,'#1'],
+   [d.e2n,d.e2t,d.e2sn,d.e2sp,d.e2se,d.e2p,d.e2d,d.e2r,'#2'],
+   [d.e3n,d.e3t,d.e3sn,d.e3sp,d.e3se,d.e3p,d.e3d,d.e3r,'#3']
+  ].forEach(([n,t,sn,sp,se,ep,dt,re,lb]) => {
+    if (!n && !t) return;
+    chk(110); doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(...MT);y+=10;doc.text('EMPLOYER '+lb,M,y);y+=12;
+    two('Employer',n,'Title',t); two('Supervisor',sn,'Supervisor Phone',sp);
+    two('Supervisor Email',se,'Employer Phone',ep); two('Dates',dt,'Reason for Leaving',re); y+=4;
+  });
+
+  // Signature page
+  chk(220);
+  sec('At-Will Employment & Authorization');
+  const atw = 'The relationship between you and CityBlock Properties, INC., CityBlock Communities, LLC. and its subsidiaries is referred to as "employment at will." Employment can be terminated at any time for any reason. I authorize CityBlock Properties, INC., CityBlock Communities, LLC. and its subsidiaries to contact former employers and education organizations regarding my employment and education.';
+  doc.setFont('helvetica','normal'); doc.setFontSize(7.5); doc.setTextColor(...MT);
+  const atwLines = doc.splitTextToSize(atw, UW);
+  chk(atwLines.length * 10 + 110);
+  doc.text(atwLines, M, y); y += atwLines.length * 10 + 18;
+
+  doc.setFontSize(7); doc.setTextColor(...MT); doc.text('APPLICANT SIGNATURE', M, y); y += 8;
+  doc.setFillColor(255,255,255); doc.rect(M, y, 280, 75, 'F');
+  doc.addImage(canvas.toDataURL('image/png'), 'PNG', M, y, 280, 75);
+  doc.setDrawColor(...CY); doc.setLineWidth(0.75); doc.rect(M, y, 280, 75);
+  doc.setFontSize(7); doc.setTextColor(...MT); doc.text('DATE', M + 296, y + 10);
+  doc.setFontSize(9); doc.setFont('helvetica','bold'); doc.setTextColor(...WH);
+  doc.text(d.appDate || new Date().toLocaleDateString(), M + 296, y + 24);
+  y += 90;
+
+  // License page
+  if (licDataURL) {
+    newPage();
+    doc.setFillColor(...CY); doc.rect(M, y, 3, 13, 'F');
+    doc.setFont('helvetica','bold'); doc.setFontSize(9.5); doc.setTextColor(...CY);
+    doc.text("DRIVER'S LICENSE", M + 9, y + 10);
+    doc.setDrawColor(30,33,38); doc.setLineWidth(0.5); doc.line(M, y+17, PW-M, y+17); y += 32;
+    doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(...MT);
+    doc.text('Submitted by: ' + d.name + ' · Date: ' + d.appDate, M, y); y += 18;
+    doc.setFillColor(255,255,255); doc.rect(M, y, UW, 330, 'F');
+    doc.addImage(licDataURL, 'JPEG', M, y, UW, 330, '', 'MEDIUM');
+    doc.setDrawColor(...CY); doc.setLineWidth(1); doc.rect(M, y, UW, 330);
+  }
+  return doc;
+}
+
+// ── SUBMIT ──
+async function submitApp() {
+  if (!hasSig) { showToast('Please sign the application before submitting.'); return; }
+  if (!licDataURL) { showToast("Please upload a photo of your driver's license."); return; }
+  const btn = document.getElementById('subBtn');
+  const spn = document.getElementById('spinner');
+  const txt = document.getElementById('subTxt');
+  btn.disabled = true; spn.style.display = 'block'; txt.textContent = 'Generating PDF…';
+  try {
+    const d = collectData();
+    const doc = await generatePDF(d);
+    document.getElementById('mainForm').style.display = 'none';
+    document.getElementById('pb').style.display = 'none';
+    document.getElementById('appHdr').style.display = 'none';
+    document.getElementById('sucScreen').classList.add('show');
+    document.getElementById('dnBtn').onclick = () =>
+      doc.save('CityBlock_Application_' + d.name.replace(/\s+/g, '_') + '.pdf');
+  } catch(err) {
+    console.error(err);
+    btn.disabled = false; spn.style.display = 'none'; txt.textContent = 'Submit Application →';
+    showToast('Something went wrong. Please try again.');
+  }
+}
+
+// Auto-fill today's date
+document.getElementById('f_date').value = new Date().toISOString().split('T')[0];
+
+// Drag and drop
+const upzone = document.getElementById('upzone');
+upzone.addEventListener('dragover', e => { e.preventDefault(); upzone.classList.add('drag'); });
+upzone.addEventListener('dragleave', () => upzone.classList.remove('drag'));
+upzone.addEventListener('drop', e => {
+  e.preventDefault(); upzone.classList.remove('drag');
+  const file = e.dataTransfer.files[0];
+  if (file && file.type.startsWith('image/')) {
+    try { const dt = new DataTransfer(); dt.items.add(file); document.getElementById('licFile').files = dt.files; } catch(ex) {}
+    handleUpload({ files: [file] });
+  }
+});
+</script>
+</body>
+</html>
