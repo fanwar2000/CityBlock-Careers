@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Careers — CityBlock</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Figtree:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black: #0a0a0a;
+      --off-black: #111111;
+      --cyan: #00b4d8;
+      --cyan-dim: #0096b4;
+      --cyan-glow: rgba(0,180,216,0.12);
+      --cyan-border: rgba(0,180,216,0.25);
+      --white: #ffffff;
+      --off-white: #f4f6f7;
+      --muted: #8a9099;
+      --border: #1e2126;
+      --card-bg: #131518;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Figtree', sans-serif;
+      background: var(--black);
+      color: var(--white);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── NOISE OVERLAY ── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0; z-index: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none;
+      opacity: 0.4;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.1rem 3rem;
+      background: rgba(10,10,10,0.92);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(14px);
+    }
+    .nav-logo {
+      display: flex; align-items: center; gap: 0.6rem;
+    }
+    .logo-text {
+      font-family: 'Figtree', sans-serif;
+      font-weight: 600;
+      font-size: 1.25rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .logo-text .city { color: var(--white); }
+    .logo-text .block { color: var(--cyan); }
+    .logo-reg { color: var(--cyan); font-size: 0.6rem; vertical-align: super; }
+    .nav-right { display: flex; align-items: center; gap: 2rem; }
+    .nav-link {
+      font-size: 0.8rem; font-weight: 500;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--muted); text-decoration: none;
+      transition: color 0.2s;
+    }
+    .nav-link:hover { color: var(--white); }
+    .nav-cta {
+      font-size: 0.78rem; font-weight: 600;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--black);
+      background: var(--cyan);
+      padding: 0.55rem 1.25rem;
+      border-radius: 4px;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+    .nav-cta:hover { background: var(--cyan-dim); }
+
+    /* ── HERO ── */
+    .hero {
+      position: relative;
+      padding: 9rem 3rem 5rem;
+      max-width: 1200px;
+      margin: 0 auto;
+      overflow: hidden;
+    }
+    .hero-grid-bg {
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(var(--border) 1px, transparent 1px),
+        linear-gradient(90deg, var(--border) 1px, transparent 1px);
+      background-size: 60px 60px;
+      mask-image: radial-gradient(ellipse 80% 70% at 70% 40%, black 10%, transparent 70%);
+      opacity: 0.5;
+      pointer-events: none;
+    }
+    .hero-cyan-glow {
+      position: absolute;
+      top: 3rem; right: 5rem;
+      width: 500px; height: 400px;
+      background: radial-gradient(ellipse, rgba(0,180,216,0.08) 0%, transparent 65%);
+      pointer-events: none;
+    }
+    .hero-label {
+      display: inline-flex; align-items: center; gap: 0.6rem;
+      font-size: 0.7rem; font-weight: 600;
+      letter-spacing: 0.15em; text-transform: uppercase;
+      color: var(--cyan);
+      margin-bottom: 1.75rem;
+      opacity: 0; animation: fadeUp 0.6s 0.1s forwards;
+    }
+    .hero-label-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--cyan);
+      box-shadow: 0 0 8px var(--cyan);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+    .hero h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(3.2rem, 6.5vw, 5.75rem);
+      font-weight: 500;
+      line-height: 1.05;
+      letter-spacing: -0.02em;
+      max-width: 16ch;
+      margin-bottom: 1.5rem;
+      opacity: 0; animation: fadeUp 0.7s 0.2s forwards;
+    }
+    .hero h1 .highlight {
+      color: var(--cyan);
+      font-style: italic;
+    }
+    .hero-sub {
+      font-size: 1rem; font-weight: 300;
+      color: var(--muted);
+      max-width: 46ch;
+      line-height: 1.75;
+      margin-bottom: 2.5rem;
+      opacity: 0; animation: fadeUp 0.7s 0.35s forwards;
+    }
+    .hero-actions {
+      display: flex; align-items: center; gap: 1.25rem;
+      opacity: 0; animation: fadeUp 0.7s 0.45s forwards;
+    }
+    .btn-primary {
+      padding: 0.8rem 1.75rem;
+      background: var(--cyan);
+      color: var(--black);
+      border: none; border-radius: 4px;
+      font-family: 'Figtree', sans-serif;
+      font-size: 0.875rem; font-weight: 600;
+      letter-spacing: 0.04em;
+      cursor: pointer; text-decoration: none;
+      transition: background 0.2s, transform 0.15s;
+      display: inline-block;
+    }
+    .btn-primary:hover { background: var(--cyan-dim); transform: translateY(-1px); }
+    .btn-ghost {
+      font-size: 0.85rem; font-weight: 500;
+      color: var(--muted); text-decoration: none;
+      display: flex; align-items: center; gap: 0.4rem;
+      transition: color 0.2s;
+    }
+    .btn-ghost:hover { color: var(--white); }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(18px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── STATS BAR ── */
+    .stats-bar {
+      background: var(--card-bg);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 5rem;
+    }
+    .stats-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 3rem;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+    }
+    .stat {
+      padding: 2rem 0;
+      border-right: 1px solid var(--border);
+      display: flex; flex-direction: column;
+    }
+    .stat:first-child { padding-right: 2rem; }
+    .stat:not(:first-child) { padding-left: 2rem; }
+    .stat:last-child { border-right: none; }
+    .stat-num {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2.75rem;
+      font-weight: 600;
+      color: var(--cyan);
+      line-height: 1;
+      margin-bottom: 0.3rem;
+    }
+    .stat-label {
+      font-size: 0.75rem; font-weight: 500;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    /* ── SECTION HEADING ── */
+    .section-head {
+      max-width: 1200px;
+      margin: 0 auto 2.5rem;
+      padding: 0 3rem;
+      display: flex; align-items: flex-end; justify-content: space-between;
+      flex-wrap: wrap; gap: 1rem;
+    }
+    .section-head h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2.25rem; font-weight: 500;
+      letter-spacing: -0.02em;
+    }
+    .open-count {
+      font-size: 0.78rem; font-weight: 600;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--cyan);
+    }
+
+    /* ── CONTROLS ── */
+    .controls {
+      max-width: 1200px;
+      margin: 0 auto 2rem;
+      padding: 0 3rem;
+      display: flex; gap: 1rem; flex-wrap: wrap; align-items: center;
+    }
+    .search-wrap {
+      position: relative; flex: 1; min-width: 220px;
+    }
+    .search-wrap svg {
+      position: absolute; left: 1rem; top: 50%;
+      transform: translateY(-50%); color: var(--muted);
+      pointer-events: none;
+    }
+    .search-input {
+      width: 100%;
+      padding: 0.75rem 1rem 0.75rem 2.75rem;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      font-family: 'Figtree', sans-serif;
+      font-size: 0.875rem; color: var(--white);
+      outline: none; transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .search-input::placeholder { color: var(--muted); }
+    .search-input:focus {
+      border-color: var(--cyan);
+      box-shadow: 0 0 0 3px var(--cyan-glow);
+    }
+    .filter-group { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .filter-btn {
+      padding: 0.6rem 1.1rem;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      font-family: 'Figtree', sans-serif;
+      font-size: 0.78rem; font-weight: 500;
+      color: var(--muted);
+      cursor: pointer; transition: all 0.18s;
+    }
+    .filter-btn:hover { border-color: var(--cyan); color: var(--cyan); }
+    .filter-btn.active {
+      background: var(--cyan);
+      border-color: var(--cyan);
+      color: var(--black);
+    }
+
+    /* ── JOB LIST ── */
+    .job-list {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 3rem 6rem;
+      display: flex; flex-direction: column; gap: 1px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .job-row {
+      background: var(--card-bg);
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 1rem;
+      padding: 1.75rem 2rem;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      transition: background 0.18s;
+      animation: fadeUp 0.5s both;
+      position: relative;
+    }
+    .job-row:last-child { border-bottom: none; }
+    .job-row::before {
+      content: '';
+      position: absolute; left: 0; top: 0; bottom: 0;
+      width: 3px;
+      background: var(--cyan);
+      transform: scaleY(0);
+      transform-origin: center;
+      transition: transform 0.2s;
+    }
+    .job-row:hover { background: #181b1f; }
+    .job-row:hover::before { transform: scaleY(1); }
+
+    .job-row:nth-child(1) { animation-delay: 0.05s; }
+    .job-row:nth-child(2) { animation-delay: 0.1s; }
+    .job-row:nth-child(3) { animation-delay: 0.15s; }
+    .job-row:nth-child(4) { animation-delay: 0.2s; }
+    .job-row:nth-child(5) { animation-delay: 0.25s; }
+    .job-row:nth-child(6) { animation-delay: 0.3s; }
+    .job-row:nth-child(7) { animation-delay: 0.35s; }
+
+    .job-left { display: flex; flex-direction: column; gap: 0.6rem; }
+    .job-top-row { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
+    .dept-tag {
+      font-size: 0.68rem; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.1em;
+      color: var(--cyan);
+      border: 1px solid var(--cyan-border);
+      background: var(--cyan-glow);
+      padding: 0.2rem 0.6rem;
+      border-radius: 3px;
+    }
+    .new-tag {
+      font-size: 0.65rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.1em;
+      color: var(--black);
+      background: var(--cyan);
+      padding: 0.2rem 0.6rem;
+      border-radius: 3px;
+    }
+    .job-title-row {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.4rem; font-weight: 500;
+      letter-spacing: -0.01em;
+      color: var(--white);
+    }
+    .job-meta-row {
+      display: flex; gap: 1.5rem; flex-wrap: wrap;
+    }
+    .meta-pill {
+      display: flex; align-items: center; gap: 0.35rem;
+      font-size: 0.78rem; color: var(--muted); font-weight: 400;
+    }
+    .meta-pill svg { color: var(--muted); flex-shrink: 0; }
+
+    .job-right {
+      display: flex; align-items: center;
+    }
+    .row-btn {
+      display: flex; align-items: center; gap: 0.5rem;
+      padding: 0.6rem 1.25rem;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background: transparent;
+      font-family: 'Figtree', sans-serif;
+      font-size: 0.8rem; font-weight: 500;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.18s;
+      white-space: nowrap;
+    }
+    .row-btn:hover {
+      border-color: var(--cyan);
+      color: var(--cyan);
+      background: var(--cyan-glow);
+    }
+    .row-btn svg { transition: transform 0.2s; }
+    .row-btn:hover svg { transform: translate(2px, -2px); }
+
+    /* ── HIDDEN ── */
+    .job-row.hidden { display: none; }
+    .no-results {
+      padding: 4rem; text-align: center;
+      color: var(--muted); font-size: 0.9rem;
+      display: none;
+    }
+    .no-results strong {
+      display: block;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.75rem; color: var(--white);
+      margin-bottom: 0.5rem;
+    }
+
+    /* ── WHY SECTION ── */
+    .why-section {
+      background: var(--card-bg);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 5rem 3rem;
+      margin-bottom: 5rem;
+    }
+    .why-inner {
+      max-width: 1200px; margin: 0 auto;
+    }
+    .why-label {
+      font-size: 0.7rem; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.15em;
+      color: var(--cyan); margin-bottom: 1rem;
+    }
+    .why-inner h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 500; letter-spacing: -0.02em;
+      max-width: 20ch; margin-bottom: 3.5rem;
+    }
+    .perks-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 1.5rem;
+    }
+    .perk-card {
+      padding: 1.5rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--off-black);
+      transition: border-color 0.2s;
+    }
+    .perk-card:hover { border-color: var(--cyan-border); }
+    .perk-icon {
+      width: 40px; height: 40px;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--cyan-glow);
+      border: 1px solid var(--cyan-border);
+      border-radius: 6px;
+      margin-bottom: 1rem;
+      color: var(--cyan);
+    }
+    .perk-title {
+      font-size: 0.9rem; font-weight: 600;
+      margin-bottom: 0.4rem;
+    }
+    .perk-desc {
+      font-size: 0.82rem; color: var(--muted);
+      line-height: 1.6; font-weight: 300;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      text-align: center;
+      padding: 3rem 1.5rem 5rem;
+      position: relative;
+    }
+    footer h3 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2rem; font-weight: 500;
+      margin-bottom: 0.5rem;
+    }
+    footer p {
+      color: var(--muted); font-size: 0.875rem; margin-bottom: 1.5rem;
+    }
+    footer a.email-link {
+      color: var(--cyan); text-decoration: none; font-weight: 500;
+    }
+
+    /* ── MODAL ── */
+    .modal-overlay {
+      display: none;
+      position: fixed; inset: 0; z-index: 200;
+      background: rgba(0,0,0,0.75);
+      backdrop-filter: blur(6px);
+      align-items: center; justify-content: center;
+      padding: 2rem;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: #13161a;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      max-width: 600px; width: 100%;
+      max-height: 88vh; overflow-y: auto;
+      padding: 2.5rem;
+      position: relative;
+      animation: modalIn 0.22s ease;
+    }
+    @keyframes modalIn {
+      from { opacity: 0; transform: scale(0.97) translateY(12px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .modal::-webkit-scrollbar { width: 4px; }
+    .modal::-webkit-scrollbar-track { background: transparent; }
+    .modal::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    .modal-close {
+      position: absolute; top: 1.25rem; right: 1.25rem;
+      background: var(--off-black);
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      width: 2rem; height: 2rem;
+      cursor: pointer; font-size: 1rem;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--muted); transition: border-color 0.2s, color 0.2s;
+    }
+    .modal-close:hover { border-color: var(--muted); color: var(--white); }
+
+    .modal-dept-tag { margin-bottom: 0.75rem; }
+    .modal-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2.1rem; font-weight: 500;
+      letter-spacing: -0.02em; line-height: 1.15;
+      margin-bottom: 1rem;
+    }
+    .modal-meta {
+      display: flex; gap: 1rem; flex-wrap: wrap;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .modal-section { margin-bottom: 1.5rem; }
+    .modal-section-label {
+      font-size: 0.68rem; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.12em;
+      color: var(--cyan); margin-bottom: 0.75rem;
+    }
+    .modal-section p {
+      font-size: 0.875rem; color: #c0c5cc;
+      line-height: 1.75; font-weight: 300;
+    }
+    .modal-section ul { list-style: none; padding: 0; }
+    .modal-section ul li {
+      font-size: 0.875rem; color: #c0c5cc;
+      line-height: 1.65; font-weight: 300;
+      padding: 0.3rem 0 0.3rem 1.25rem;
+      position: relative;
+    }
+    .modal-section ul li::before {
+      content: '›';
+      position: absolute; left: 0;
+      color: var(--cyan); font-size: 1rem;
+    }
+    .modal-divider {
+      height: 1px; background: var(--border);
+      margin: 1.5rem 0;
+    }
+    .modal-apply-btn {
+      display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+      width: 100%; padding: 0.9rem;
+      background: var(--cyan);
+      color: var(--black);
+      border: none; border-radius: 5px;
+      font-family: 'Figtree', sans-serif;
+      font-size: 0.9rem; font-weight: 600;
+      letter-spacing: 0.03em;
+      cursor: pointer; transition: background 0.2s;
+      margin-top: 0.5rem;
+    }
+    .modal-apply-btn:hover { background: var(--cyan-dim); }
+
+    @media (max-width: 720px) {
+      nav { padding: 1rem 1.25rem; }
+      .nav-right .nav-link { display: none; }
+      .hero, .section-head, .controls { padding-inline: 1.25rem; }
+      .job-list { margin-inline: 1.25rem; padding-bottom: 4rem; }
+      .job-row { grid-template-columns: 1fr; padding: 1.5rem; }
+      .job-right { margin-top: 0.5rem; }
+      .stats-inner { grid-template-columns: 1fr 1fr; padding-inline: 1.25rem; }
+      .stat { border-right: none; border-bottom: 1px solid var(--border); padding: 1.5rem 0; }
+      .why-section { padding: 3rem 1.25rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">
+    <div class="logo-text"><span class="city">CITY</span><span class="block">BLOCK</span><sup class="logo-reg">®</sup></div>
+  </div>
+  <div class="nav-right">
+    <a href="https://cityblockusa.com/about-us/" class="nav-link">About</a>
+    <a href="https://cityblockusa.com/our-properties/" class="nav-link">Properties</a>
+    <a href="#openings" class="nav-cta">View Openings</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-grid-bg"></div>
+  <div class="hero-cyan-glow"></div>
+  <div class="hero-label">
+    <span class="hero-label-dot"></span>
+    Now Hiring
+  </div>
+  <h1>Help build a community worth <span class="highlight">calling home.</span></h1>
+  <p class="hero-sub">CityBlock Properties is an Athens-based property management company with a full stake in every property we manage. Since 2002, we've been developing, rehabbing, and maintaining quality homes — keeping properties in top shape and tenants happy.</p>
+  <div class="hero-actions">
+    <a href="#openings" class="btn-primary">See Open Roles</a>
+    <a href="/cdn-cgi/l/email-protection#31525043545443427152584548535d5e525a1f525e5c" class="btn-ghost">
+      Reach out directly
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+    </a>
+  </div>
+</section>
+
+<!-- STATS BAR -->
+<div class="stats-bar">
+  <div class="stats-inner">
+    <div class="stat">
+      <span class="stat-num">150+</span>
+      <span class="stat-label">Properties Managed</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num">23</span>
+      <span class="stat-label">Years in Business</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num">1</span>
+      <span class="stat-label">Open Role</span>
+    </div>
+  </div>
+</div>
+
+<!-- WHY CITYBLOCK -->
+<div class="why-section">
+  <div class="why-inner">
+    <div class="why-label">Why CityBlock</div>
+    <h2>Built for people who take their work seriously.</h2>
+    <div class="perks-grid">
+      <div class="perk-card">
+        <div class="perk-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <div class="perk-title">Competitive Compensation</div>
+        <div class="perk-desc">Top-of-market salaries with annual reviews and performance bonuses.</div>
+      </div>
+      <div class="perk-card">
+        <div class="perk-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 14a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 3h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 10.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 17.92z"/></svg>
+        </div>
+        <div class="perk-title">Full Benefits Package</div>
+        <div class="perk-desc">Health, dental, and vision coverage, plus vacation and sick leave.</div>
+      </div>
+      <div class="perk-card">
+        <div class="perk-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+        </div>
+        <div class="perk-title">Growth & Learning</div>
+        <div class="perk-desc">We provide continued training throughout your career and the opportunity to move into a leadership role.</div>
+      </div>
+      <div class="perk-card">
+        <div class="perk-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <div class="perk-title">Strong Culture</div>
+        <div class="perk-desc">Small enough to know everyone, big enough to have real impact. Low ego, high standards.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- OPENINGS SECTION -->
+<div class="section-head" id="openings">
+  <h2>Open Positions</h2>
+  <span class="open-count" id="openCount">Loading…</span>
+</div>
+
+<!-- CONTROLS -->
+<div class="controls">
+  <div class="search-wrap">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <input class="search-input" type="text" id="searchInput" placeholder="Search roles, teams…" />
+  </div>
+  <div class="filter-group" id="filterGroup">
+    <button class="filter-btn active" data-dept="All">All</button>
+  </div>
+</div>
+
+<!-- JOB LIST -->
+<div class="job-list" id="jobList">
+  <div class="no-results" id="noResults" style="display:none">
+    <strong>No roles found.</strong>
+    Try adjusting your search or filter.
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <h3>Don't see your role?</h3>
+  <p>We're always interested in exceptional people. Send us your résumé and a note.</p>
+  <a href="/cdn-cgi/l/email-protection#ea898b988f8f9899aa89839e938886858981c4898587" class="email-link"><span class="__cf_email__" data-cfemail="4d2e2c3f28283f3e0d2e2439342f21222e26632e2220">[email&#160;protected]</span></a>
+</footer>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModalOnOverlay(event)">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="modal-dept-tag" id="mDept"></div>
+    <div class="modal-title" id="mTitle"></div>
+    <div class="modal-meta" id="mMeta"></div>
+    <div class="modal-section">
+      <div class="modal-section-label">About the Role</div>
+      <p id="mDesc"></p>
+    </div>
+    <div class="modal-divider"></div>
+    <div class="modal-section">
+      <div class="modal-section-label">What We're Looking For</div>
+      <ul id="mReqs"></ul>
+    </div>
+    <div class="modal-divider"></div>
+    <div class="modal-section">
+      <div class="modal-section-label">Key Responsibilities</div>
+      <ul>
+        <li>Conduct inspections of units, common areas, building exteriors, and equipment</li>
+        <li>Diagnose and repair HVAC, electrical, plumbing, appliances, and mechanical systems</li>
+        <li>Perform interior remodel work including trim, door/window installation, siding, and light framing</li>
+        <li>Plan, schedule, and execute maintenance projects within timelines and budgets</li>
+        <li>Coordinate with management to engage external vendors and review estimates</li>
+        <li>Maintain regular written communication with the Property Manager on project status</li>
+        <li>Respond promptly to tenant maintenance requests and assist with painting projects</li>
+        <li>Prepare units for new tenants ensuring all fixtures and amenities meet company standards</li>
+        <li>Follow strict safety protocols and compliance regulations at all times</li>
+      </ul>
+    </div>
+    <div class="modal-divider"></div>
+    <div class="modal-section">
+      <div class="modal-section-label">What We Offer</div>
+      <ul>
+        <li>Competitive salary benchmarked to market</li>
+        <li>100% employer-paid medical, dental & vision</li>
+        <li>401(k) with 4% company match</li>
+        <li>$2,000 annual learning & development stipend</li>
+        <li>Unlimited PTO with 3-week minimum encouraged</li>
+        <li>Hybrid and flexible work arrangements available</li>
+      </ul>
+    </div>
+    <button class="modal-apply-btn" id="mApplyBtn">Apply for this Position →</button>
+  </div>
+</div>
+
+<script>
+  const searchInput = document.getElementById('searchInput');
+  const noResults = document.getElementById('noResults');
+  const openCount = document.getElementById('openCount');
+  const jobList = document.getElementById('jobList');
+  const filterGroup = document.getElementById('filterGroup');
+  let activeDept = 'All';
+
+  const FALLBACK = [{
+    id:'fallback-1', title:'Maintenance Worker', dept:'Maintenance',
+    location:'Athens, GA', type:'Full-time · On-site', salary:'', experience:'10+ yrs experience required',
+    isNew:true,
+    desc:"CityBlock is looking for a highly skilled, self-motivated Maintenance Worker in Athens, GA. You'll handle routine inspections, repairs, and full interior remodel work across our residential portfolio.",
+    reqs:"High school diploma or GED required; associate degree preferred,Minimum 10 years full-time remodel and building maintenance experience,HVAC EPA certification required,Must live within 15 minutes of Athens GA,Proficient in HVAC, plumbing, electrical, carpentry, and general repairs,Skilled in painting, drywall, flooring, deck repair, siding, roofing, window replacement and wood rot repair,Must have own tools and reliable work truck,Must pass a clean criminal background check"
+  }];
+
+  function locIcon(){return'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>';}
+  function typeIcon(){return'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="7" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>';}
+  function salIcon(){return'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" x2="12" y1="2" y2="22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>';}
+  function expIcon(){return'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a5 5 0 1 0 0 10A5 5 0 0 0 12 2zM2 20c0-4 4-7 10-7s10 3 10 7"/></svg>';}
+
+  function buildRow(job) {
+    const row = document.createElement('div');
+    row.className = 'job-row';
+    row.dataset.dept = job.dept;
+    row.dataset.title = job.title;
+    row.dataset.desc = job.desc;
+    row.dataset.reqs = job.reqs;
+    row.innerHTML = `
+      <div class="job-left">
+        <div class="job-top-row">
+          <span class="dept-tag">${job.dept}</span>
+          ${job.isNew ? '<span class="new-tag">Now Hiring</span>' : ''}
+        </div>
+        <div class="job-title-row">${job.title}</div>
+        <div class="job-meta-row">
+          ${job.location ? `<div class="meta-pill">${locIcon()} ${job.location}</div>` : ''}
+          ${job.type ? `<div class="meta-pill">${typeIcon()} ${job.type}</div>` : ''}
+          ${job.salary ? `<div class="meta-pill">${salIcon()} ${job.salary}</div>` : ''}
+          ${job.experience ? `<div class="meta-pill">${expIcon()} ${job.experience}</div>` : ''}
+        </div>
+      </div>
+      <div class="job-right">
+        <button class="row-btn" onclick="openModal(this.closest('.job-row'))">
+          View &amp; Apply
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg>
+        </button>
+      </div>`;
+    return row;
+  }
+
+  function rebuildFilters(jobs) {
+    const depts = ['All', ...new Set(jobs.map(j => j.dept))];
+    filterGroup.innerHTML = depts.map(d =>
+      `<button class="filter-btn${d===activeDept?' active':''}" data-dept="${d}">${d}</button>`
+    ).join('');
+    filterGroup.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        filterGroup.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active'); activeDept = btn.dataset.dept; applyFilters();
+      });
+    });
+  }
+
+  function applyFilters() {
+    const q = searchInput.value.toLowerCase().trim();
+    let count = 0;
+    jobList.querySelectorAll('.job-row').forEach(row => {
+      const deptMatch = activeDept === 'All' || row.dataset.dept === activeDept;
+      const searchMatch = !q || row.dataset.title.toLowerCase().includes(q) || row.dataset.desc.toLowerCase().includes(q) || row.dataset.dept.toLowerCase().includes(q);
+      const show = deptMatch && searchMatch;
+      row.classList.toggle('hidden', !show);
+      if (show) count++;
+    });
+    noResults.style.display = count === 0 ? 'block' : 'none';
+    openCount.textContent = count + (count === 1 ? ' Role' : ' Roles');
+  }
+
+  async function loadJobs() {
+    let jobs = FALLBACK;
+    try {
+      const result = await window.storage.get('cityblock-jobs', true);
+      if (result && result.value) {
+        const parsed = JSON.parse(result.value);
+        if (Array.isArray(parsed) && parsed.length > 0) jobs = parsed;
+      }
+    } catch(e) {}
+    jobList.querySelectorAll('.job-row').forEach(r => r.remove());
+    jobs.forEach(job => jobList.insertBefore(buildRow(job), noResults));
+    rebuildFilters(jobs);
+    applyFilters();
+  }
+
+  loadJobs();
+  searchInput.addEventListener('input', applyFilters);
+
+  function openModal(row) {
+    document.getElementById('mDept').innerHTML = `<span class="dept-tag">${row.dataset.dept}</span>`;
+    document.getElementById('mTitle').textContent = row.dataset.title;
+    document.getElementById('mDesc').textContent = row.dataset.desc;
+    const metaItems = row.querySelectorAll('.meta-pill');
+    document.getElementById('mMeta').innerHTML = Array.from(metaItems).map(m => `<div class="meta-pill">${m.innerHTML}</div>`).join('');
+    const reqs = row.dataset.reqs.split(',');
+    document.getElementById('mReqs').innerHTML = reqs.map(r => `<li>${r.trim()}</li>`).join('');
+    document.getElementById('mApplyBtn').textContent = `Apply for ${row.dataset.title} →`;
+    document.getElementById('modalOverlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeModal() {
+    document.getElementById('modalOverlay').classList.
