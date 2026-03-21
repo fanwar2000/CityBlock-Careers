@@ -848,6 +848,9 @@
     const reqs = row.dataset.reqs.split(',');
     document.getElementById('mReqs').innerHTML = reqs.map(r => `<li>${r.trim()}</li>`).join('');
     document.getElementById('mApplyBtn').textContent = `Apply for ${row.dataset.title} →`;
+    document.getElementById('mApplyBtn').onclick = () => {
+      window.location.href = 'cityblock-application.html?job=' + encodeURIComponent(row.dataset.title);
+    };
     document.getElementById('modalOverlay').classList.add('open');
     document.body.style.overflow = 'hidden';
   }
