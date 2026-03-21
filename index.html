@@ -824,9 +824,9 @@
   async function loadJobs() {
     let jobs = FALLBACK;
     try {
-      const result = await window.storage.get('cityblock-jobs', true);
-      if (result && result.value) {
-        const parsed = JSON.parse(result.value);
+      const stored = localStorage.getItem('cityblock-jobs');
+      if (stored) {
+        const parsed = JSON.parse(stored);
         if (Array.isArray(parsed) && parsed.length > 0) jobs = parsed;
       }
     } catch(e) {}
