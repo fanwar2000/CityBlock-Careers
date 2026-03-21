@@ -438,23 +438,28 @@ const DEFAULT = [{
 
 async function loadJobs() {
   try {
-    const r = await window.storage.get(KEY, true);
-    if (r && r.value) {
-      const p = JSON.parse(r.value);
+    const stored = localStorage.getItem(KEY);
+    if (stored) {
+      const p = JSON.parse(stored);
       jobs = Array.isArray(p) && p.length > 0 ? p : DEFAULT;
     } else {
       jobs = DEFAULT;
-      await persist();
+      persist();
     }
-  } catch(e) { jobs = DEFAULT; }
+  } catch(e) {
+    jobs = DEFAULT;
+  }
   render();
 }
 
-async function persist() {
+function persist() {
   try {
-    await window.storage.set(KEY, JSON.stringify(jobs), true);
+    localStorage.setItem(KEY, JSON.stringify(jobs));
     return true;
-  } catch(e) { toast('Storage error — changes may not persist.','e'); return false; }
+  } catch(e) {
+    toast('Storage error — changes may not persist.','e');
+    return false;
+  }
 }
 
 // ── RENDER ──
@@ -604,14 +609,14 @@ const DEFAULT_APP = {
 
 async function loadAppSettings() {
   try {
-    const r = await window.storage.get(APP_KEY, true);
-    if (r && r.value) {
-      const s = JSON.parse(r.value);
+    const stored = localStorage.getItem(APP_KEY);
+    if (stored) {
+      const s = JSON.parse(stored);
       document.getElementById('ae-jobTitle').value = s.jobTitle || DEFAULT_APP.jobTitle;
-      document.getElementById('ae-tagline').value  = s.tagline  || DEFAULT_APP.tagline;
-      document.getElementById('ae-eoe').value      = s.eoe      || DEFAULT_APP.eoe;
-      document.getElementById('ae-empNote').value  = s.empNote  || DEFAULT_APP.empNote;
-      document.getElementById('ae-atwill').value   = s.atwill   || DEFAULT_APP.atwill;
+      document.getElementById('ae-tagline').value = s.tagline || DEFAULT_APP.tagline;
+      document.getElementById('ae-eoe').value = s.eoe || DEFAULT_APP.eoe;
+      document.getElementById('ae-empNote').value = s.empNote || DEFAULT_APP.empNote;
+      document.getElementById('ae-atwill').value = s.atwill || DEFAULT_APP.atwill;
       if (s.toggles) {
         Object.keys(s.toggles).forEach(k => {
           const el = document.getElementById('tog-' + k);
@@ -630,14 +635,14 @@ async function saveAppSettings() {
   });
   const settings = {
     jobTitle: document.getElementById('ae-jobTitle').value.trim(),
-    tagline:  document.getElementById('ae-tagline').value.trim(),
-    eoe:      document.getElementById('ae-eoe').value.trim(),
-    empNote:  document.getElementById('ae-empNote').value.trim(),
-    atwill:   document.getElementById('ae-atwill').value.trim(),
+    tagline: document.getElementById('ae-tagline').value.trim(),
+    eoe: document.getElementById('ae-eoe').value.trim(),
+    empNote: document.getElementById('ae-empNote').value.trim(),
+    atwill: document.getElementById('ae-atwill').value.trim(),
     toggles
   };
   try {
-    await window.storage.set(APP_KEY, JSON.stringify(settings), true);
+    localStorage.setItem(APP_KEY, JSON.stringify(settings));
     toast('Application settings saved!');
   } catch(e) {
     toast('Save failed — storage error.', 'e');
