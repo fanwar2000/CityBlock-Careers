@@ -354,6 +354,17 @@ select option{background:#1a1d22}
       <div class="sig-acts">
         <button class="btn-clr" onclick="clearSig()">Clear Signature</button>
       </div>
+      <div class="stitle" style="margin-top:2rem">Resume / CV <span style="color:var(--cyan)">*</span></div>
+      <p style="font-size:.8rem;color:var(--muted);margin-bottom:.75rem">Upload your resume (PDF, DOC, or DOCX — max 10MB).</p>
+      <div class="upzone" id="resumeZone">
+        <input type="file" id="resumeFileInput" accept=".pdf,.doc,.docx" onchange="handleResumeUpload(this)">
+        <div class="ico">&#128196;</div>
+        <p>Drag &amp; drop or click to upload your resume</p>
+        <small>PDF, DOC, DOCX — max 10MB</small>
+      </div>
+      <div class="uprev" id="resumePrev" style="display:none">
+        <div class="uplbl"><span id="resumeFileName">resume.pdf</span><button class="rmbtn" onclick="removeResume()">✕ Remove</button></div>
+      </div>
       <div class="stitle" style="margin-top:2rem">Driver's License Photo <span style="color:var(--cyan)">*</span></div>
       <p style="font-size:.8rem;color:var(--muted);margin-bottom:.75rem">Upload a clear photo of the front of your valid driver's license.</p>
       <div class="upzone" id="upzone">
@@ -394,7 +405,7 @@ select option{background:#1a1d22}
 
 <script>
 // ── STATE ──
-let curStep = 1, licDataURL = null, hasSig = false, isDrawing = false;
+let curStep = 1, licDataURL = null, resumeFileName = null, hasSig = false, isDrawing = false;
 
 // ── TOAST ──
 function showToast(msg) {
@@ -519,6 +530,25 @@ function removeLic() {
   document.getElementById('uprev').style.display = 'none';
   document.getElementById('upzone').style.borderColor = '';
 }
+
+      // -- RESUME UPLOAD --
+    function handleResumeUpload(input) {
+      const file = input.files[0]; if (!file) return;
+      if (file.size > 10 * 1024 * 1024) { showToast('File too large. Max 10MB.'); return; }
+      const validTypes = ['.pdf','.doc','.docx'];
+      const ext = '.' + file.name.split('.').pop().toLowerCase();
+      if (!validTypes.includes(ext)) { showToast('Please upload a PDF, DOC, or DOCX file.'); return; }
+      resumeFileName = file.name;
+      document.getElementById('resumeFileName').textContent = file.name;
+      document.getElementById('resumePrev').style.display = 'block';
+      document.getElementById('resumeZone').style.borderColor = 'var(--cyan)';
+    }
+    function removeResume() {
+      resumeFileName = null;
+      document.getElementById('resumeFileInput').value = '';
+      document.getElementById('resumePrev').style.display = 'none';
+      document.getElementById('resumeZone').style.borderColor = '';
+    }
 
 // ── COLLECT FORM DATA ──
 function gv(id) { const el = document.getElementById(id); return el ? el.value.trim() : ''; }
@@ -695,6 +725,16 @@ async function generatePDF(d) {
   doc.text(d.appDate || new Date().toLocaleDateString(), M + 296, y + 24);
   y += 90;
 
+      // Resume note in PDF
+      if (resumeFileName) {
+        chk(50);
+        doc.setFillColor(...CY); doc.rect(M, y, 3, 13, 'F');
+        doc.setFont('helvetica','bold'); doc.setFontSize(9.5); doc.setTextColor(...CY);
+        doc.text('RESUME ATTACHED', M + 9, y + 10);
+        doc.setDrawColor(30,33,38); doc.setLineWidth(0.5); doc.line(M, y+17, PW-M, y+17); y += 28;
+        doc.setFont('helvetica','normal'); doc.setFontSize(8.5); doc.setTextColor(...WH);
+        doc.text('File: ' + resumeFileName, M, y); y += 18;
+      }
   // License page
   if (licDataURL) {
     newPage();
@@ -714,6 +754,7 @@ async function generatePDF(d) {
 // ── SUBMIT ──
 async function submitApp() {
   if (!hasSig) { showToast('Please sign the application before submitting.'); return; }
+      if (!resumeFileName) { showToast('Please upload your resume.'); return; }
   if (!licDataURL) { showToast("Please upload a photo of your driver's license."); return; }
   const btn = document.getElementById('subBtn');
   const spn = document.getElementById('spinner');
@@ -750,6 +791,22 @@ upzone.addEventListener('drop', e => {
     handleUpload({ files: [file] });
   }
 });
+
+      // Drag and drop for resume
+    const rzone = document.getElementById('resumeZone');
+    rzone.addEventListener('dragover', e => { e.preventDefault(); rzone.classList.add('drag'); });
+    rzone.addEventListener('dragleave', () => rzone.classList.remove('drag'));
+    rzone.addEventListener('drop', e => {
+      e.preventDefault(); rzone.classList.remove('drag');
+      const file = e.dataTransfer.files[0];
+      if (file) {
+        const ext = '.' + file.name.split('.').pop().toLowerCase();
+        if (['.pdf','.doc','.docx'].includes(ext)) {
+          try { const dt = new DataTransfer(); dt.items.add(file); document.getElementById('resumeFileInput').files = dt.files; } catch(ex) {}
+          handleResumeUpload({ files: [file] });
+        }
+      }
+    });
 </script>
 </body>
 </html>
