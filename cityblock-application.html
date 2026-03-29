@@ -755,9 +755,9 @@ async function generatePDF(d) {
 
 // ── SUBMIT ──
 async function submitApp() {
-  if (!hasSig) { showToast('Please sign the application before submitting.'); return; }
-      if (!resumeFileName) { showToast('Please upload your resume.'); return; }
-  if (!licDataURL) { showToast("Please upload a photo of your driver's license."); return; }
+  /* if (!hasSig) { showToast('Please sign the application before submitting.'); return; } */
+      /* if (!resumeFileName) { showToast('Please upload your resume.'); return; } */
+  /* if (!licDataURL) { showToast("Please upload a photo of your driver's license."); return; } */
   const btn = document.getElementById('subBtn');
   const spn = document.getElementById('spinner');
   const txt = document.getElementById('subTxt');
