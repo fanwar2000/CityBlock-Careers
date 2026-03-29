@@ -762,8 +762,8 @@ async function submitApp() {
   const spn = document.getElementById('spinner');
   const txt = document.getElementById('subTxt');
   btn.disabled = true; spn.style.display = 'block'; txt.textContent = 'Generating PDF…';
-  try {
     const d = collectData();
+    try {
     const doc = await generatePDF(d);
               // Send email notification
       try { await emailjs.send('service_3zkgi9a', 'template_8aa2m4k', {
