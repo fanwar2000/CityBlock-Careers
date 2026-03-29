@@ -3,6 +3,8 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+      <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <script type="text/javascript">emailjs.init('d0_PyavRkZyOWbysQ');</script>
 <title>Apply — Maintenance Worker | CityBlock</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
@@ -771,6 +773,33 @@ async function submitApp() {
       doc.save('CityBlock_Application_' + d.name.replace(/\s+/g, '_') + '.pdf');
   } catch(err) {
     console.error(err);
+          // Send application data via EmailJS
+      try {
+        await emailjs.send('service_3zkgi9a', 'template_8aa2m4k', {
+          name: d.name,
+          email: d.email,
+          phone: d.phone,
+          address: d.address + ', ' + d.city + ', ' + d.state + ' ' + d.zip,
+          app_date: d.appDate,
+          pos_type: d.posType,
+          hear_about: d.hearAbout,
+          days: d.daysAvailable,
+          hours: d.hoursAvailable,
+          overtime: d.overtime,
+          start_date: d.startDate,
+          transport: d.transport,
+          salary: d.salary,
+          age18: d.age18,
+          us_work: d.usWork,
+          drug_test: d.drugTest,
+          criminal: d.criminal,
+          skills: d.skills,
+          resume_name: resumeFileName || 'Not provided',
+        });
+        console.log('Application email sent successfully');
+      } catch(emailErr) {
+        console.error('Email send failed:', emailErr);
+      }
     btn.disabled = false; spn.style.display = 'none'; txt.textContent = 'Submit Application →';
     showToast('Something went wrong. Please try again.');
   }
