@@ -765,6 +765,17 @@ async function submitApp() {
   try {
     const d = collectData();
     const doc = await generatePDF(d);
+              // Send email notification
+      try { await emailjs.send('service_3zkgi9a', 'template_8aa2m4k', {
+        name: d.name, email: d.email, phone: d.phone,
+        address: d.address + ', ' + d.city + ', ' + d.state + ' ' + d.zip,
+        app_date: d.appDate, pos_type: d.posType, hear_about: d.hearAbout,
+        days: d.daysAvailable, hours: d.hoursAvailable, overtime: d.overtime,
+        start_date: d.startDate, transport: d.transport, salary: d.salary,
+        age18: d.age18, us_work: d.usWork, drug_test: d.drugTest,
+        criminal: d.criminal, skills: d.skills,
+        resume_name: resumeFileName || 'Not provided'
+      }); console.log('Email sent successfully'); } catch(eErr) { console.error('Email failed:', eErr); }
     document.getElementById('mainForm').style.display = 'none';
     document.getElementById('pb').style.display = 'none';
     document.getElementById('appHdr').style.display = 'none';
