@@ -812,9 +812,10 @@ async function submitApp() {
         console.error('Email send failed:', emailErr);
       }
     btn.disabled = false; spn.style.display = 'none'; txt.textContent = 'Submit Application →';
-    showToast('Something went wrong. Please try again.');
-  }
-}
+      document.getElementById('mainForm').style.display = 'none';
+      document.getElementById('pb').style.display = 'none';
+      document.getElementById('appHdr').style.display = 'none';
+      document.getElementById('sucScreen').classList.add('show');
 
 // Auto-fill today's date
 document.getElementById('f_date').value = new Date().toISOString().split('T')[0];
