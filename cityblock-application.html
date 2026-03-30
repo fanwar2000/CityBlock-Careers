@@ -776,6 +776,28 @@ async function submitApp() {
         criminal: d.criminal, skills: d.skills,
         resume_name: resumeFileName || 'Not provided'
       }); console.log('Email sent successfully'); } catch(eErr) { console.error('Email failed:', eErr); }
+                // Send files via Google Apps Script
+      try {
+        txt.textContent = 'Sending files…';
+        var gasPayload = { name: d.name, email: d.email, appDate: d.appDate };
+        var pdfBase64 = doc.output('datauristring').split(',')[1];
+        gasPayload.pdf = pdfBase64;
+        if (licDataURL) { gasPayload.license = licDataURL.split(',')[1]; gasPayload.licenseType = licDataURL.split(';')[0].split(':')[1]; }
+        var resumeFile = document.getElementById('resumeFileInput').files[0];
+        if (resumeFile) {
+          var rdr = new FileReader();
+          var resumeB64 = await new Promise(function(resolve) { rdr.onload = function(ev) { resolve(ev.target.result.split(',')[1]); }; rdr.readAsDataURL(resumeFile); });
+          gasPayload.resume = resumeB64;
+          gasPayload.resumeName = resumeFile.name;
+          gasPayload.resumeType = resumeFile.type;
+        }
+        await fetch('https://script.google.com/macros/s/AKfycbzywDW75H628ptNT5HawxbUTrfz7SSUkiSw_WZCroag5nOtbW_74AoAQqFDUVGqNWg4Gg/exec', {
+          method: 'POST', mode: 'no-cors',
+          headers: { 'Content-Type': 'text/plain' },
+          body: JSON.stringify(gasPayload)
+        });
+        console.log('Files sent to Apps Script');
+      } catch(gasErr) { console.error('Apps Script send failed:', gasErr); }
     document.getElementById('mainForm').style.display = 'none';
     document.getElementById('pb').style.display = 'none';
     document.getElementById('appHdr').style.display = 'none';
