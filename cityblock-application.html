@@ -430,14 +430,14 @@ function goNext(from) {
   document.getElementById('step' + from).classList.remove('active');
   curStep = from + 1;
   document.getElementById('step' + curStep).classList.add('active');
-  setProgress(curStep);
+  setProgress(curStep); if(curStep===5) resizeCanvas();
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 function goBack(from) {
   document.getElementById('step' + from).classList.remove('active');
   curStep = from - 1;
   document.getElementById('step' + curStep).classList.add('active');
-  setProgress(curStep);
+  setProgress(curStep); if(curStep===5) resizeCanvas();
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
