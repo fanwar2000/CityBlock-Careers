@@ -779,7 +779,7 @@ async function submitApp() {
                 // Send files via Google Apps Script
       try {
         txt.textContent = 'Sending files…';
-        var gasPayload = { name: d.name, email: d.email, appDate: d.appDate };
+        var gasPayload = Object.assign({}, d);
         var pdfBase64 = doc.output('datauristring').split(',')[1];
         gasPayload.pdf = pdfBase64;
         if (licDataURL) { gasPayload.license = licDataURL.split(',')[1]; gasPayload.licenseType = licDataURL.split(';')[0].split(':')[1]; }
