@@ -153,7 +153,7 @@
     <div class="lf"><label>Password</label><input type="password" id="lp" placeholder="Password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"/></div>
     <button class="login-btn" onclick="doLogin()">Sign In →</button>
     <div class="login-error" id="loginError">Incorrect username or password.</div>
-    <p class="hint">Default credentials: admin / cityblock2025</p>
+    <p class="hint">Contact your administrator for access credentials.</p>
   </div>
 </div>
 
@@ -390,14 +390,14 @@
 
 <script>
 // ── AUTH ──
-const CREDS = {user:'admin', pass:'cityblock2025'};
-let authed = false;
+async function sha256(s){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s));return Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join('')}const H_U='8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918';const H_P='4b7fe60f10166f546204656cd46f0effaf98670d34aa23fbd3b6f43c48de8d73';
+let authed = false; const AUTH_TOKEN = 'cb_auth_' + Date.now();
 
-function doLogin() {
+async function doLogin() {
   const u = document.getElementById('lu').value.trim();
   const p = document.getElementById('lp').value;
-  if (u === CREDS.user && p === CREDS.pass) {
-    authed = true;
+  if (await sha256(u) === H_U && await sha256(p) === H_P) {
+    authed = true; sessionStorage.setItem('cbAuth', AUTH_TOKEN);
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('adminShell').classList.add('visible');
     loadJobs();
@@ -655,6 +655,16 @@ async function loadJobsAndSettings() {
   await _origLoadJobs();
   await loadAppSettings();
 }
+
+      // ── ANTI-BYPASS: Prevent DevTools class manipulation ──
+    new MutationObserver(function(mutations) {
+      mutations.forEach(function(m) {
+        if (m.target.id === 'adminShell' && m.target.classList.contains('visible') && !authed) {
+          m.target.classList.remove('visible');
+          document.getElementById('loginScreen').style.display = 'flex';
+        }
+      });
+    }).observe(document.getElementById('adminShell'), {attributes: true, attributeFilter: ['class']});
 
 </script>
 </body>
