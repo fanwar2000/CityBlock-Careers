@@ -541,12 +541,14 @@ function removeLic() {
       const ext = '.' + file.name.split('.').pop().toLowerCase();
       if (!validTypes.includes(ext)) { showToast('Please upload a PDF, DOC, or DOCX file.'); return; }
       resumeFileName = file.name;
+            var reader = new FileReader(); reader.onload = function() { resumeBase64 = reader.result.split(',')[1]; }; reader.readAsDataURL(file);
       document.getElementById('resumeFileName').textContent = file.name;
       document.getElementById('resumePrev').style.display = 'block';
       document.getElementById('resumeZone').style.borderColor = 'var(--cyan)';
     }
     function removeResume() {
       resumeFileName = null;
+            resumeBase64 = null;
       document.getElementById('resumeFileInput').value = '';
       document.getElementById('resumePrev').style.display = 'none';
       document.getElementById('resumeZone').style.borderColor = '';
@@ -824,6 +826,18 @@ try {
     document.getElementById('sucScreen').classList.add('show');
     document.getElementById('dnBtn').onclick = () =>
       doc.save('CityBlock_Application_' + d.name.replace(/\s+/g, '_') + '.pdf');
+            // Send PDF + resume to server for email delivery
+      try {
+        var pdfBase64 = doc.output('datauristring').split(',')[1];
+        var payload = { pdf: pdfBase64, name: d.name, email: d.email, phone: d.phone, job: d.name ? document.title.replace('Apply — ','').replace(' | CityBlock','') : '' };
+        if (resumeBase64) { payload.resume = resumeBase64; payload.resume_name = resumeFileName; }
+        await fetch('https://cityblockusa.com/careers-admin/send-application.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        console.log('Application PDF sent to server');
+      } catch(serverErr) { console.error('Server send failed:', serverErr); }
   } catch(err) {
     console.error(err);
           // Send application data via EmailJS
