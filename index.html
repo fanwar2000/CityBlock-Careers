@@ -620,8 +620,8 @@
       <span class="stat-label">Years in Business</span>
     </div>
     <div class="stat">
-      <span class="stat-num">1</span>
-      <span class="stat-label">Open Role</span>
+      <span class="stat-num" id="heroRoleCount">1</span>
+      <span class="stat-label" id="heroRoleLabel">Open Role</span>
     </div>
   </div>
 </div>
@@ -824,7 +824,7 @@
   async function loadJobs() {
     let jobs = FALLBACK; try { const r = await fetch('jobs.json'); if (r.ok) { const d = await r.json(); if (Array.isArray(d) && d.length) jobs = d; } } catch(e) {}
     try {
-      const stored = localStorage.getItem('cityblock-jobs');
+      const stored = null;
       if (stored) {
         const parsed = JSON.parse(stored);
         if (Array.isArray(parsed) && parsed.length > 0) jobs = parsed;
@@ -832,7 +832,7 @@
     } catch(e) {}
     jobList.querySelectorAll('.job-row').forEach(r => r.remove());
     jobs.forEach(job => jobList.insertBefore(buildRow(job), noResults));
-    rebuildFilters(jobs);
+    rebuildFilters(jobs); var rc=document.getElementById('heroRoleCount'),rl=document.getElementById('heroRoleLabel'); if(rc){rc.textContent=jobs.length;} if(rl){rl.textContent=jobs.length===1?'Open Role':'Open Roles';}
     applyFilters();
   }
 
