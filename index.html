@@ -703,42 +703,8 @@
     <div class="modal-dept-tag" id="mDept"></div>
     <div class="modal-title" id="mTitle"></div>
     <div class="modal-meta" id="mMeta"></div>
-    <div class="modal-section">
-      <div class="modal-section-label">About the Role</div>
-      <p id="mDesc"></p>
-    </div>
-    <div class="modal-divider"></div>
-    <div class="modal-section">
-      <div class="modal-section-label">What We're Looking For</div>
-      <ul id="mReqs"></ul>
-    </div>
-    <div class="modal-divider"></div>
-    <div class="modal-section">
-      <div class="modal-section-label">Key Responsibilities</div>
-      <ul>
-        <li>Conduct inspections of units, common areas, building exteriors, and equipment</li>
-        <li>Diagnose and repair HVAC, electrical, plumbing, appliances, and mechanical systems</li>
-        <li>Perform interior remodel work including trim, door/window installation, siding, and light framing</li>
-        <li>Plan, schedule, and execute maintenance projects within timelines and budgets</li>
-        <li>Coordinate with management to engage external vendors and review estimates</li>
-        <li>Maintain regular written communication with the Property Manager on project status</li>
-        <li>Respond promptly to tenant maintenance requests and assist with painting projects</li>
-        <li>Prepare units for new tenants ensuring all fixtures and amenities meet company standards</li>
-        <li>Follow strict safety protocols and compliance regulations at all times</li>
-      </ul>
-    </div>
-    <div class="modal-divider"></div>
-    <div class="modal-section">
-      <div class="modal-section-label">What We Offer</div>
-      <ul>
-        <li>Competitive salary benchmarked to market</li>
-        <li>100% employer-paid medical, dental & vision</li>
-        <li>401(k) with 4% company match</li>
-        <li>$2,000 annual learning & development stipend</li>
-        <li>Unlimited PTO with 3-week minimum encouraged</li>
-        <li>Hybrid and flexible work arrangements available</li>
-      </ul>
-    </div>
+            <div id="mDesc"></div>
+        <div class="modal-divider"></div>
     <button class="modal-apply-btn" id="mApplyBtn">Apply for this Position →</button>
   </div>
 </div>
@@ -755,9 +721,9 @@
     id:'fallback-1', title:'Maintenance Worker', dept:'Maintenance',
     location:'Athens, GA', type:'Full-time · On-site', salary:'', experience:'10+ yrs experience required',
     isNew:true,
-    desc:"CityBlock is looking for a highly skilled, self-motivated Maintenance Worker in Athens, GA. You'll handle routine inspections, repairs, and full interior remodel work across our residential portfolio.",
-    reqs:"High school diploma or GED required; associate degree preferred,Minimum 10 years full-time remodel and building maintenance experience,HVAC EPA certification required,Must live within 15 minutes of Athens GA,Proficient in HVAC, plumbing, electrical, carpentry, and general repairs,Skilled in painting, drywall, flooring, deck repair, siding, roofing, window replacement and wood rot repair,Must have own tools and reliable work truck,Must pass a clean criminal background check"
-  }];
+        desc:"CityBlock is looking for a highly skilled, self-motivated Maintenance Worker in Athens, GA. You'll handle routine inspections, repairs, and full interior remodel work across our residential portfolio.",
+    reqs:"High school diploma or GED required; associate degree preferred,Minimum 10 years full-time remodel and building maintenance experience,HVAC EPA certification required,Must live within 15 minutes of Athens GA,Proficient in HVAC plumbing electrical carpentry and general repairs,Must have own tools and reliable work truck,Must pass a clean criminal background check",
+}];
 
   function locIcon(){return'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>';}
   function typeIcon(){return'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="7" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>';}
@@ -769,8 +735,12 @@
     row.className = 'job-row';
     row.dataset.dept = job.dept;
     row.dataset.title = job.title;
-    row.dataset.desc = job.desc;
-    row.dataset.reqs = job.reqs;
+          row.dataset.desc = job.desc||'';
+      row.dataset.reqs = job.reqs||'';
+            row.dataset.location = job.location||'';
+      row.dataset.type = job.type||'';
+      row.dataset.experience = job.experience||'';
+      row.dataset.salary = job.salary||'';
     row.innerHTML = `
       <div class="job-left">
         <div class="job-top-row">
@@ -842,11 +812,16 @@
   function openModal(row) {
     document.getElementById('mDept').innerHTML = `<span class="dept-tag">${row.dataset.dept}</span>`;
     document.getElementById('mTitle').textContent = row.dataset.title;
-    document.getElementById('mDesc').textContent = row.dataset.desc;
-    const metaItems = row.querySelectorAll('.meta-pill');
-    document.getElementById('mMeta').innerHTML = Array.from(metaItems).map(m => `<div class="meta-pill">${m.innerHTML}</div>`).join('');
-    const reqs = row.dataset.reqs.split(',');
-    document.getElementById('mReqs').innerHTML = reqs.map(r => `<li>${r.trim()}</li>`).join('');
+    
+      var meta = locIcon()+' '+row.dataset.location+' &nbsp; '+typeIcon()+' '+row.dataset.type;
+      if(row.dataset.experience) meta += ' &nbsp; '+expIcon()+' '+row.dataset.experience;
+      if(row.dataset.salary) meta += ' &nbsp; '+salIcon()+' '+row.dataset.salary;
+      document.getElementById('mMeta').innerHTML = meta;
+          const makeBullets = str => (str||'').split(',').map(r => `<li>${r.trim()}</li>`).join('');
+      document.getElementById('mDesc').innerHTML = `
+        <div class="modal-section"><div class="modal-section-label">About The Role</div><p>${row.dataset.desc||''}</p></div>
+        ${row.dataset.reqs ? `<div class="modal-section"><div class="modal-section-label">Requirements</div><ul>${makeBullets(row.dataset.reqs)}</ul></div>` : ''}
+      `;
     document.getElementById('mApplyBtn').textContent = `Apply for ${row.dataset.title} →`;
     document.getElementById('mApplyBtn').onclick = () => {
       window.location.href = 'cityblock-application.html?job=' + encodeURIComponent(row.dataset.title);

@@ -349,16 +349,18 @@
       <div class="ff"><label>Salary / Pay</label><input type="text" id="fSalary" placeholder="e.g. $55–75k or $25/hr"/></div>
       <div class="ff"><label>Experience Required</label><input type="text" id="fExp" placeholder="e.g. 5+ yrs experience required"/></div>
     </div>
-    <div class="fg full">
-      <div class="ff"><label>Job Description <span class="req">*</span></label><textarea id="fDesc" rows="4" placeholder="Describe the role, team, and what the candidate will do day-to-day..."></textarea></div>
-    </div>
-    <div class="fg full">
-      <div class="ff">
-        <label>Requirements <span class="req">*</span></label>
-        <textarea id="fReqs" rows="6" placeholder="Enter each requirement on a new line..."></textarea>
-        <span class="hint">One requirement per line. They'll appear as bullet points on the careers page.</span>
-      </div>
-    </div>
+            <div class="fg full">
+                <div class="ff"><label>About The Role <span class="req">*</span></label><textarea id="fAboutRole" rows="4" placeholder="Describe the role and what makes it exciting..."></textarea></div>
+            </div>
+            <div class="fg full">
+                <div class="ff"><label>What You Will Do <span class="req">*</span></label><textarea id="fWhatYouDo" rows="5" placeholder="One responsibility per line..."></textarea><span class="hint">One item per line. They'll appear as bullet points on the careers page.</span></div>
+            </div>
+            <div class="fg full">
+                <div class="ff"><label>What We're Looking For <span class="req">*</span></label><textarea id="fLookingFor" rows="5" placeholder="One requirement per line..."></textarea><span class="hint">One item per line. They'll appear as bullet points on the careers page.</span></div>
+            </div>
+            <div class="fg full">
+                <div class="ff"><label>Why Join Us</label><textarea id="fWhyJoin" rows="4" placeholder="One benefit/perk per line..."></textarea><span class="hint">One item per line. They'll appear as bullet points on the careers page.</span></div>
+            </div>
     <div class="toggle-row">
       <label class="toggle"><input type="checkbox" id="fIsNew" checked/><span class="slider"></span></label>
       <span class="toggle-lbl">Show "Now Hiring" badge on careers page</span>
@@ -432,8 +434,10 @@ const DEFAULT = [{
   id:'default-1', title:'Maintenance Worker', dept:'Maintenance',
   location:'Athens, GA', type:'Full-time · On-site', salary:'', experience:'10+ yrs experience required',
   isNew:true,
-  desc:"CityBlock is looking for a highly skilled, self-motivated Maintenance Worker in Athens, GA. You'll handle routine inspections, repairs, and full interior remodel work across our residential portfolio — keeping properties in excellent condition and residents happy.",
-  reqs:"High school diploma or GED required; associate degree from a technical college preferred\nMinimum 10 years of full-time remodel and building maintenance experience\nHVAC EPA certification required\nMust live within 15 minutes of Athens, GA\nHighly proficient in HVAC, plumbing, electrical, carpentry, and general repairs\nSkilled in painting, drywall, flooring (wood, LVP, tile & carpet), deck repair, siding, minor roofing, exterior trim, window replacement, and wood rot repair\nMust have own tools and a reliable work truck with valid driver's license\nProficient with mobile apps for tracking, scheduling, and communication\nStrong written and verbal communication skills\nProfessional appearance and customer service-oriented mindset\nMust pass a clean criminal background check"
+      aboutRole:"CityBlock is looking for a highly skilled, self-motivated Maintenance Worker in Athens, GA. You'll handle routine inspections, repairs, and full interior remodel work across our residential portfolio.",
+    whatYouDo:"Conduct inspections of units and common areas,Diagnose and repair HVAC electrical plumbing and mechanical systems,Perform interior remodel work including trim doors windows siding and framing,Plan schedule and execute maintenance projects within timelines and budgets,Coordinate with management to engage external vendors,Respond promptly to tenant maintenance requests,Prepare units for new tenants to company standards",
+    lookingFor:"High school diploma or GED required; associate degree preferred,Minimum 10 years full-time remodel and building maintenance experience,HVAC EPA certification required,Must live within 15 minutes of Athens GA,Proficient in HVAC plumbing electrical carpentry and general repairs,Must have own tools and reliable work truck,Must pass a clean criminal background check",
+    whyJoin:"Competitive salary benchmarked to market,100% employer-paid medical dental and vision,401(k) with 4% company match,$2000 annual learning and development stipend,Flexible work arrangements available"
 }];
 
 async function loadJobs() {
@@ -491,7 +495,7 @@ function render() {
 
 // ── FORM ──
 function clearForm() {
-  ['fTitle','fLoc','fSalary','fExp','fDesc','fReqs'].forEach(id=>document.getElementById(id).value='');
+  ['fTitle','fLoc','fSalary','fExp','fAboutRole','fWhatYouDo','fLookingFor','fWhyJoin'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('fDept').value='';
   document.getElementById('fType').value='';
   document.getElementById('fIsNew').checked=true;
@@ -514,21 +518,22 @@ function openEdit(id) {
   document.getElementById('fType').value = j.type||'';
   document.getElementById('fSalary').value = j.salary||'';
   document.getElementById('fExp').value = j.experience||'';
-  document.getElementById('fDesc').value = j.desc||'';
-  // Display reqs as newline-separated for easy editing
-  document.getElementById('fReqs').value = (j.reqs||'').split(',').map(r=>r.trim()).join('\n');
-  document.getElementById('fIsNew').checked = !!j.isNew;
+  document.getElementById('fAboutRole').value = j.aboutRole||'';
+        document.getElementById('fWhatYouDo').value = (j.whatYouDo||'').split(',').map(r=>r.trim()).join('\n');
+        document.getElementById('fLookingFor').value = (j.lookingFor||'').split(',').map(r=>r.trim()).join('\n');
+        document.getElementById('fWhyJoin').value = (j.whyJoin||'').split(',').map(r=>r.trim()).join('\n');
   document.getElementById('jobModal').classList.add('open');
 }
 
 async function saveJob() {
   const title = document.getElementById('fTitle').value.trim();
   const dept  = document.getElementById('fDept').value.trim();
-  const desc  = document.getElementById('fDesc').value.trim();
-  const reqs  = document.getElementById('fReqs').value.trim();
-  if (!title||!dept||!desc||!reqs) { toast('Please fill in all required fields.','e'); return; }
-  // Normalize: newlines or commas → comma-separated
-  const reqsNorm = reqs.split(/[\n,]/).map(r=>r.trim()).filter(Boolean).join(',');
+        const aboutRole = document.getElementById('fAboutRole').value.trim();
+        const whatYouDo = document.getElementById('fWhatYouDo').value.trim();
+        const lookingFor = document.getElementById('fLookingFor').value.trim();
+        const whyJoin = document.getElementById('fWhyJoin').value.trim();
+        if (!title||!dept||!aboutRole||!whatYouDo||!lookingFor) { toast('Please fill in all required fields.','e'); return; }
+        const normList = s => s.split(/[\n,]/).map(r=>r.trim()).filter(Boolean).join(',');
   const editId = document.getElementById('editId').value;
   const data = {
     title, dept,
@@ -536,7 +541,7 @@ async function saveJob() {
     type: document.getElementById('fType').value,
     salary: document.getElementById('fSalary').value.trim(),
     experience: document.getElementById('fExp').value.trim(),
-    desc, reqs: reqsNorm,
+            aboutRole, whatYouDo: normList(whatYouDo), lookingFor: normList(lookingFor), whyJoin: normList(whyJoin),
     isNew: document.getElementById('fIsNew').checked
   };
   if (editId) {
