@@ -792,7 +792,7 @@
   }
 
   async function loadJobs() {
-    let jobs = FALLBACK; try { const r = await fetch('jobs.json'); if (r.ok) { const d = await r.json(); if (Array.isArray(d) && d.length) jobs = d; } } catch(e) {}
+    let jobs = FALLBACK; try { const r = await fetch('https://cityblockusa.com/careers-admin/api-jobs.php'); if (r.ok) { const d = await r.json(); if (Array.isArray(d) && d.length) jobs = d; } } catch(e) {}
     try {
       const stored = null;
       if (stored) {
